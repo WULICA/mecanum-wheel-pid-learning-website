@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+</head>
+<body>
+  <h2>Test 1: \cr command</h2>
+  <div id="test1"></div>
+
+  <h2>Test 2: \\ command (single)</h2>
+  <div id="test2"></div>
+
+  <h2>Test 3: split environment</h2>
+  <div id="test3"></div>
+
+  <script>
+    // Test 1: \cr
+    katex.render("\\begin{aligned} u(t) &= K_p \\cdot e(t) \\cr &+ K_i \\cdot \\int_0^t e(\\tau) d\\tau \\cr &+ K_d \\cdot \\frac{de(t)}{dt} \\end{aligned}", document.getElementById('test1'), {displayMode: true});
+
+    // Test 2: \\
+    katex.render("\\begin{aligned} u(t) &= K_p \\cdot e(t) \\ \\ &+ K_i \\cdot \\int_0^t e(\\tau) d\\tau \\ \\ &+ K_d \\cdot \\frac{de(t)}{dt} \\end{aligned}", document.getElementById('test2'), {displayMode: true});
+
+    // Test 3: split
+    katex.render("\\begin{split} u(t) &= K_p \\cdot e(t) \\ \\ &+ K_i \\cdot \\int_0^t e(\\tau) d\\tau \\ \\ &+ K_d \\cdot \\frac{de(t)}{dt} \\end{split}", document.getElementById('test3'), {displayMode: true});
+  </script>
+</body>
+</html>
