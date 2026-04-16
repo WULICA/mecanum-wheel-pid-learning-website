@@ -60,17 +60,17 @@ RR轮：辊子朝向 ╲（左后-右前方向）
 $$
 \begin{aligned}
 \begin{bmatrix} 
-V_{fl} \\\\ V_{fr} \\\\ V_{rl} \\\\ V_{rr} 
+V_{fl} \cr V_{fr} \cr V_{rl} \cr V_{rr} 
 \end{bmatrix} 
 = \frac{1}{r} 
 \begin{bmatrix} 
-1 & -1 & -(l_x + l_y) \\\\ 
-1 & 1 & (l_x + l_y) \\\\ 
-1 & 1 & -(l_x + l_y) \\\\ 
+1 & -1 & -(l_x + l_y) \cr 
+1 & 1 & (l_x + l_y) \cr 
+1 & 1 & -(l_x + l_y) \cr 
 1 & -1 & (l_x + l_y) 
 \end{bmatrix} 
 \begin{bmatrix} 
-V_x \\\\ V_y \\\\ \omega 
+V_x \cr V_y \cr \omega 
 \end{bmatrix}
 \end{aligned}
 $$
