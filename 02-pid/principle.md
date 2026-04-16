@@ -34,14 +34,30 @@
 ### 标准公式（连续形式）
 
 $$
-u(t) = K_p e(t) + K_i \int_0^t e(\tau) d\tau + K_d \frac{de(t)}{dt}
+u(t) = K_p \cdot e(t) + K_i \cdot \int_0^t e(\tau) d\tau + K_d \cdot \frac{de(t)}{dt}
 $$
+
+展开为三项：
+
+| 项 | 公式 | 作用 |
+|:--:|:-----|:-----|
+| P项 | $K_p \cdot e(t)$ | 比例响应 |
+| I项 | $K_i \cdot \int_0^t e(\tau) d\tau$ | 积分累积 |
+| D项 | $K_d \cdot \frac{de(t)}{dt}$ | 微分预测 |
 
 ### 离散形式（代码实现）
 
 $$
 u = K_p \cdot e + K_i \cdot \sum e \cdot \Delta t + K_d \cdot \frac{e - e_{last}}{\Delta t}
 $$
+
+展开为三项：
+
+| 项 | 公式 | 说明 |
+|:--:|:-----|:-----|
+| P项 | $K_p \cdot e$ | 当前误差 |
+| I项 | $K_i \cdot \sum e \cdot \Delta t$ | 累积误差 |
+| D项 | $K_d \cdot \frac{e - e_{last}}{\Delta t}$ | 误差变化 |
 
 ### 参数说明
 
