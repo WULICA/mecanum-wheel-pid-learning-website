@@ -95,32 +95,44 @@ $$
 
 ### 简化推导
 
-从正向公式：
+从正向公式（假设 $r=1$ 简化）：
 
-$$V_{fl} = V_x - V_y - \omega L$$
-$$V_{fr} = V_x + V_y + \omega L$$
-$$V_{rl} = V_x + V_y - \omega L$$
-$$V_{rr} = V_x - V_y + \omega L$$
+| 轮子 | 正向公式 |
+|:----:|:---------|
+| FL | $V_{fl} = V_x - V_y - \omega L$ |
+| FR | $V_{fr} = V_x + V_y + \omega L$ |
+| RL | $V_{rl} = V_x + V_y - \omega L$ |
+| RR | $V_{rr} = V_x - V_y + \omega L$ |
 
-（假设r=1简化）
+**求 $V_x$**：四式相加
 
-**求Vx**：四式相加
+$$
+V_{fl} + V_{fr} + V_{rl} + V_{rr} = 4V_x
+$$
 
-$$V_{fl} + V_{fr} + V_{rl} + V_{rr} = 4V_x$$
+$$
+V_x = \frac{V_{fl} + V_{fr} + V_{rl} + V_{rr}}{4}
+$$
 
-$$V_x = \frac{V_{fl} + V_{fr} + V_{rl} + V_{rr}}{4}$$
+**求 $V_y$**：$(V_{fr} + V_{rl}) - (V_{fl} + V_{rr})$
 
-**求Vy**：(V_fr + V_rl) - (V_fl + V_rr)
+$$
+V_{fr} + V_{rl} - V_{fl} - V_{rr} = 4V_y
+$$
 
-$$V_{fr} + V_{rl} - V_{fl} - V_{rr} = 4V_y$$
+$$
+V_y = \frac{-V_{fl} + V_{fr} + V_{rl} - V_{rr}}{4}
+$$
 
-$$V_y = \frac{-V_{fl} + V_{fr} + V_{rl} - V_{rr}}{4}$$
+**求 $\omega$**：$(V_{fr} + V_{rr}) - (V_{fl} + V_{rl})$
 
-**求ω**：(V_fr + V_rr) - (V_fl + V_rl)
+$$
+V_{fr} + V_{rr} - V_{fl} - V_{rl} = 4\omega L
+$$
 
-$$V_{fr} + V_{rr} - V_{fl} - V_{rl} = 4\omega L$$
-
-$$\omega = \frac{-V_{fl} + V_{fr} - V_{rl} + V_{rr}}{4L}$$
+$$
+\omega = \frac{-V_{fl} + V_{fr} - V_{rl} + V_{rr}}{4L}
+$$
 
 ---
 

@@ -60,7 +60,9 @@ $$
 
 ### 公式
 
-$$P_{out} = K_p \cdot e$$
+$$
+P_{out} = K_p \cdot e
+$$
 
 ### 物理意义
 
@@ -109,7 +111,9 @@ $$P_{out} = K_p \cdot e$$
 
 ### 公式
 
-$$I_{out} = K_i \cdot \sum e \cdot \Delta t$$
+$$
+I_{out} = K_i \cdot \sum e \cdot \Delta t
+$$
 
 ### 物理意义
 
@@ -163,7 +167,9 @@ $$I_{out} = K_i \cdot \sum e \cdot \Delta t$$
 
 ### 公式
 
-$$D_{out} = K_d \cdot \frac{e - e_{last}}{\Delta t}$$
+$$
+D_{out} = K_d \cdot \frac{e - e_{last}}{\Delta t}
+$$
 
 ### 物理意义
 

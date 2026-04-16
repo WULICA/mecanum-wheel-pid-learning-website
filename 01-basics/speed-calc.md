@@ -22,19 +22,21 @@
      = 脉冲数 / (每转脉冲数 × 时间)
 ```
 
-### 公式
+### RPM 计算公式
 
-$$RPM = \frac{\Delta count \times 60}{PPR \times \Delta t}$$
+$$
+RPM = \frac{\Delta count \times 60}{PPR \times \Delta t}
+$$
 
 ### 参数说明
 
 | 符号 | 含义 | 单位 | 说明 |
-|------|------|------|------|
-| RPM | 转速 | 转/分钟 | Revolutions Per Minute |
-| Δcount | 脉冲变化量 | 个 | 测量周期内的脉冲计数变化 |
-| PPR | 每转脉冲数 | 个/转 | Pulses Per Revolution |
-| Δt | 测量周期 | 秒 | 两次读数的时间间隔 |
-| 60 | 时间换算系数 | 秒/分钟 | 60秒 = 1分钟 |
+|:----:|:-----|:-----|:-----|
+| $RPM$ | 转速 | 转/分钟 | Revolutions Per Minute |
+| $\Delta count$ | 脉冲变化量 | 个 | 测量周期内的脉冲计数变化 |
+| $PPR$ | 每转脉冲数 | 个/转 | Pulses Per Revolution |
+| $\Delta t$ | 测量周期 | 秒 | 两次读数的时间间隔 |
+| $60$ | 时间换算系数 | 秒/分钟 | 60秒 = 1分钟 |
 
 ---
 
@@ -146,14 +148,17 @@ void TIM_IRQHandler(void) {
 
 有时我们需要的是轮子的线速度（m/s），而不是转速（RPM）。
 
-### 公式
+### 线速度公式
 
-$$V = \frac{RPM \times 2\pi r}{60}$$
+$$
+V = \frac{RPM \times 2\pi r}{60}
+$$
 
-其中：
-- V：线速度（m/s）
-- r：轮子半径（m）
-- RPM：转速（转/分钟）
+| 符号 | 含义 | 单位 |
+|:----:|:-----|:-----|
+| $V$ | 线速度 | m/s |
+| $r$ | 轮子半径 | m |
+| $RPM$ | 转速 | 转/分钟 |
 
 ### 代码
 
