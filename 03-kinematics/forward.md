@@ -58,6 +58,7 @@ RR轮：辊子朝向 ╲（左后-右前方向）
 将机器人速度映射到四个轮子速度的矩阵方程：
 
 $$
+\begin{aligned}
 \begin{bmatrix} 
 V_{fl} \\ V_{fr} \\ V_{rl} \\ V_{rr} 
 \end{bmatrix} 
@@ -71,6 +72,7 @@ V_{fl} \\ V_{fr} \\ V_{rl} \\ V_{rr}
 \begin{bmatrix} 
 V_x \\ V_y \\ \omega 
 \end{bmatrix}
+\end{aligned}
 $$
 
 ### 展开形式

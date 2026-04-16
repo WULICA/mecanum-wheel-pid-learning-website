@@ -85,7 +85,9 @@ $$
 ### 公式
 
 $$
-P_{out} = K_p \cdot e
+\begin{aligned}
+P_{out} &= K_p \cdot e
+\end{aligned}
 $$
 
 ### 物理意义
@@ -136,7 +138,9 @@ $$
 ### 公式
 
 $$
-I_{out} = K_i \cdot \sum e \cdot \Delta t
+\begin{aligned}
+I_{out} &= K_i \cdot \sum e \cdot \Delta t
+\end{aligned}
 $$
 
 ### 物理意义
@@ -192,7 +196,9 @@ $$
 ### 公式
 
 $$
-D_{out} = K_d \cdot \frac{e - e_{last}}{\Delta t}
+\begin{aligned}
+D_{out} &= K_d \cdot \frac{e - e_{last}}{\Delta t}
+\end{aligned}
 $$
 
 ### 物理意义

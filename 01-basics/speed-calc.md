@@ -25,7 +25,9 @@
 ### RPM 计算公式
 
 $$
-RPM = \frac{\Delta count \times 60}{PPR \times \Delta t}
+\begin{aligned}
+RPM &= \frac{\Delta count \times 60}{PPR \times \Delta t}
+\end{aligned}
 $$
 
 ### 参数说明
@@ -151,7 +153,9 @@ void TIM_IRQHandler(void) {
 ### 线速度公式
 
 $$
-V = \frac{RPM \times 2\pi r}{60}
+\begin{aligned}
+V &= \frac{RPM \times 2\pi r}{60}
+\end{aligned}
 $$
 
 | 符号 | 含义 | 单位 |

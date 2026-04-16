@@ -53,6 +53,7 @@
 从四个轮子速度反推机器人速度：
 
 $$
+\begin{aligned}
 \begin{bmatrix} 
 V_x \\ V_y \\ \omega 
 \end{bmatrix} 
@@ -65,6 +66,7 @@ V_x \\ V_y \\ \omega
 \begin{bmatrix} 
 V_{fl} \\ V_{fr} \\ V_{rl} \\ V_{rr} 
 \end{bmatrix}
+\end{aligned}
 $$
 
 ### 展开形式
@@ -107,31 +109,43 @@ $$
 **求 $V_x$**：四式相加
 
 $$
-V_{fl} + V_{fr} + V_{rl} + V_{rr} = 4V_x
+\begin{aligned}
+V_{fl} + V_{fr} + V_{rl} + V_{rr} &= 4V_x
+\end{aligned}
 $$
 
 $$
-V_x = \frac{V_{fl} + V_{fr} + V_{rl} + V_{rr}}{4}
+\begin{aligned}
+V_x &= \frac{V_{fl} + V_{fr} + V_{rl} + V_{rr}}{4}
+\end{aligned}
 $$
 
 **求 $V_y$**：$(V_{fr} + V_{rl}) - (V_{fl} + V_{rr})$
 
 $$
-V_{fr} + V_{rl} - V_{fl} - V_{rr} = 4V_y
+\begin{aligned}
+V_{fr} + V_{rl} - V_{fl} - V_{rr} &= 4V_y
+\end{aligned}
 $$
 
 $$
-V_y = \frac{-V_{fl} + V_{fr} + V_{rl} - V_{rr}}{4}
+\begin{aligned}
+V_y &= \frac{-V_{fl} + V_{fr} + V_{rl} - V_{rr}}{4}
+\end{aligned}
 $$
 
 **求 $\omega$**：$(V_{fr} + V_{rr}) - (V_{fl} + V_{rl})$
 
 $$
-V_{fr} + V_{rr} - V_{fl} - V_{rl} = 4\omega L
+\begin{aligned}
+V_{fr} + V_{rr} - V_{fl} - V_{rl} &= 4\omega L
+\end{aligned}
 $$
 
 $$
-\omega = \frac{-V_{fl} + V_{fr} - V_{rl} + V_{rr}}{4L}
+\begin{aligned}
+\omega &= \frac{-V_{fl} + V_{fr} - V_{rl} + V_{rr}}{4L}
+\end{aligned}
 $$
 
 ---
