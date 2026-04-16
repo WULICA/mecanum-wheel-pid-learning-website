@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>Docsify KaTeX 问题诊断</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
+  <style>
+    .debug-box { background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 4px; }
+    .success { color: green; }
+    .error { color: red; }
+    pre { white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <hr>
+  <h2>调试信息</h2>
+  <div class="debug-box">
+    <h3>docsify-katex 正则表达式分析</h3>
+    <pre id="regex-analysis"></pre>
+  </div>
+
+  <div class="debug-box">
+    <h3>marked.js 处理后的文本</h3>
+    <pre id="marked-output"></pre>
+  </div>
+
+  <script>
+    window.$docsify = {
+      name: 'KaTeX问题诊断',
+      routerMode: 'hash',
+      markdown: function(originMarked, originRenderer) {
+        // 拦截 marked 调用，输出调试信息
+        const originalParse = marked.parse;
+        marked.parse = function(src, options) {
+          document.getElementById('marked-output').textContent =
+            '原始Markdown:\n' + src + '\n\n处理后HTML:\n' + originalParse.call(this, src, options);
+          return originalParse.call(this, src, options);
+        };
+
+        // docsify-katex 的正则
+        const regexAnalysis = `
+docsify-katex 使用的正则表达式:
+- block: /^\\$\\$((\\\\.|[^\\$\\\\])+)\\$\\$/
+- inline: /^\\$((\\\\.|[^\\$\\\\])+)\\$/
+
+关键问题: 正则要求 $$ 紧贴公式内容
+但Markdown文件中:
+$$
+\\begin{aligned}
+...
+$$
+
+$$ 后有换行，正则可能无法匹配！
+
+匹配测试:
+`;
+
+        const blockRegex = /^\$\$((\\.|[^\$\\])+)\$\$/;
+        const testInputs = [
+          '$$\\begin{aligned} a &= b \\cr c &= d \\end{aligned}$$',  // 无换行
+          '$$\n\\begin{aligned} a &= b \\cr c &= d \\end{aligned}\n$$',  // 有换行
+          '$$\\begin{aligned}\na &= b \\cr\nc &= d\n\\end{aligned}$$'  // 内容有换行
+        ];
+
+        testInputs.forEach((input, i) => {
+          const match = blockRegex.exec(input);
+          regexAnalysis += `测试${i+1}: ${match ? '✓ 匹配成功' : '✗ 匹配失败'}\n输入: ${JSON.stringify(input)}\n\n`;
+        });
+
+        document.getElementById('regex-analysis').textContent = regexAnalysis;
+
+        return originMarked.apply(this, arguments);
+      }
+    };
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/docsify.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify-katex@2.0.2/dist/docsify-katex.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>KaTeX测试</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+</head>
+<body style="padding: 20px; font-family: sans-serif;">
+  <h1>KaTeX 直接渲染测试</h1>
+
+  <h2>测试1: \cr 命令</h2>
+  <div id="test1"></div>
+
+  <h2>测试2: \\ 命令</h2>
+  <div id="test2"></div>
+
+  <h2>测试3: 原始Markdown内容中的公式</h2>
+  <div id="test3"></div>
+
+  <hr>
+  <h2>调试信息</h2>
+  <pre id="debug"></pre>
+
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script>
+    const formulas = [
+      {name: "cr命令", latex: "\\begin{aligned} u(t) &= K_p \\cdot e(t) \\cr &\\quad + K_i \\cdot \\int_0^t e(\\tau) d\\tau \\cr &\\quad + K_d \\cdot \\frac{de(t)}{dt} \\end{aligned}"},
+      {name: "双反斜杠", latex: "\\begin{aligned} u(t) &= K_p \\cdot e(t) \\\\ &\\quad + K_i \\cdot \\int_0^t e(\\tau) d\\tau \\\\ &\\quad + K_d \\cdot \\frac{de(t)}{dt} \\end{aligned}"},
+      {name: "原始文件内容", latex: "\\begin{aligned}\nu(t) &= K_p \\cdot e(t) \\cr\n&\\quad + K_i \\cdot \\int_0^t e(\\tau) d\\tau \\cr\n&\\quad + K_d \\cdot \\frac{de(t)}{dt}\n\\end{aligned}"}
+    ];
+
+    formulas.forEach((f, i) => {
+      try {
+        katex.render(f.latex, document.getElementById('test' + (i+1)), {
+          displayMode: true,
+          throwOnError: true
+        });
+        document.getElementById('debug').textContent += `测试${i+1} (${f.name}): ✓ 成功\n\nLaTeX源码:\n${f.latex}\n\n`;
+      } catch(e) {
+        document.getElementById('test' + (i+1)).innerHTML = `<span style="color:red">✗ 错误: ${e.message}</span>`;
+        document.getElementById('debug').textContent += `测试${i+1} (${f.name}): ✗ 失败\n错误: ${e.message}\n\nLaTeX源码:\n${f.latex}\n\n`;
+      }
+    });
+  </script>
+</body>
+</html>

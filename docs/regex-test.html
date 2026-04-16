@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>docsify-katex 正则测试</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .test { margin: 20px 0; padding: 15px; background: #f5f5f5; }
+    .match { color: green; }
+    .nomatch { color: red; }
+  </style>
+</head>
+<body>
+  <h1>docsify-katex 正则表达式匹配测试</h1>
+
+  <h2>问题分析</h2>
+  <p>docsify-katex 的 block 公式正则：<code>/^\$\$((\\.|[^\$\\])+)\$\$/</code></p>
+  <p>关键：<code>[^\$\\]</code> 匹配非 <code>$</code> 和非 <code>\</code> 的字符</p>
+  <p><strong>换行符 <code>\n</code> 不在这个范围内！</strong></p>
+  <p>所以 <code>$$\n内容</code> 无法匹配，因为 <code>\n</code> 不属于 <code>\\.</code> 或 <code>[^\$\\]</code></p>
+
+  <hr>
+
+  <div id="results"></div>
+
+  <script>
+    // docsify-katex 的正则
+    const blockRegex = /^\$\$((\\.|[^\$\\])+)\$\$/;
+
+    // 测试用例
+    const tests = [
+      {
+        name: "标准格式（无换行）",
+        input: "$$\\begin{aligned} a &= b \\end{aligned}$$"
+      },
+      {
+        name: "$$后有换行（用户当前格式）",
+        input: "$$\n\\begin{aligned} a &= b \\end{aligned}\n$$"
+      },
+      {
+        name: "内容中有换行（\\cr）",
+        input: "$$\\begin{aligned} a &= b \\cr c &= d \\end{aligned}$$"
+      },
+      {
+        name: "用户实际公式格式",
+        input: "$$\n\\begin{aligned}\nu(t) &= K_p \\cdot e(t) \\cr\n&\\quad + K_i \\cdot \\int_0^t e(\\tau) d\\tau \\cr\n&\\quad + K_d \\cdot \\frac{de(t)}{dt}\n\\end{aligned}\n$$"
+      },
+      {
+        name: "修复格式：$$和内容同一行",
+        input: "$$\\begin{aligned}\nu(t) &= K_p \\cdot e(t) \\cr\n&\\quad + K_i \\cdot \\int_0^t e(\\tau) d\\tau \\cr\n&\\quad + K_d \\cdot \\frac{de(t)}{dt}\n\\end{aligned}$$"
+      }
+    ];
+
+    const resultsDiv = document.getElementById('results');
+    tests.forEach(test => {
+      const match = blockRegex.exec(test.input);
+      const div = document.createElement('div');
+      div.className = 'test';
+      div.innerHTML = `
+        <h3>${test.name}</h3>
+        <p>输入：<pre>${test.input}</pre></p>
+        <p class="${match ? 'match' : 'nomatch'}">
+          结果：${match ? '✓ 匹配成功' : '✗ 匹配失败'}
+        </p>
+        ${match ? `<p>提取的内容：<pre>${match[1]}</pre></p>` : ''}
+      `;
+      resultsDiv.appendChild(div);
+    });
+  </script>
+</body>
+</html>

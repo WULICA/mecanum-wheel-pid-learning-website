@@ -31,11 +31,9 @@
 
 ### 方法：四轮速度平均
 
-$$
-\begin{aligned}
+$$\begin{aligned}
 V_x &= \frac{V_{fl} + V_{fr} + V_{rl} + V_{rr}}{4}
-\end{aligned}
-$$
+\end{aligned}$$
 
 ### 为什么用平均？
 
@@ -102,11 +100,9 @@ float get_Vy(void) {
 
 ### 方法1：从轮速推算（不推荐）
 
-$$
-\begin{aligned}
+$$\begin{aligned}
 \omega &= \frac{-V_{fl} + V_{fr} - V_{rl} + V_{rr}}{4L}
-\end{aligned}
-$$
+\end{aligned}$$
 
 **问题**：
 - 轮子打滑时误差大

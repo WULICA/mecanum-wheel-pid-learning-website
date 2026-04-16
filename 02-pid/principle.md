@@ -33,13 +33,11 @@
 
 ### 标准公式（连续形式）
 
-$$
-\begin{aligned}
-u(t) &= K_p \cdot e(t) \cr
-&\quad + K_i \cdot \int_0^t e(\tau) d\tau \cr
+$$\begin{aligned}
+u(t) &= K_p \cdot e(t) \\
+&\quad + K_i \cdot \int_0^t e(\tau) d\tau \\
 &\quad + K_d \cdot \frac{de(t)}{dt}
-\end{aligned}
-$$
+\end{aligned}$$
 
 **三项分解：**
 
@@ -51,13 +49,11 @@ $$
 
 ### 离散形式（代码实现）
 
-$$
-\begin{aligned}
-u &= K_p \cdot e \cr
-&\quad + K_i \cdot \sum e \cdot \Delta t \cr
+$$\begin{aligned}
+u &= K_p \cdot e \\
+&\quad + K_i \cdot \sum e \cdot \Delta t \\
 &\quad + K_d \cdot \frac{e - e_{last}}{\Delta t}
-\end{aligned}
-$$
+\end{aligned}$$
 
 **三项分解：**
 
@@ -84,11 +80,9 @@ $$
 
 ### 公式
 
-$$
-\begin{aligned}
+$$\begin{aligned}
 P_{out} &= K_p \cdot e
-\end{aligned}
-$$
+\end{aligned}$$
 
 ### 物理意义
 
@@ -137,11 +131,9 @@ $$
 
 ### 公式
 
-$$
-\begin{aligned}
+$$\begin{aligned}
 I_{out} &= K_i \cdot \sum e \cdot \Delta t
-\end{aligned}
-$$
+\end{aligned}$$
 
 ### 物理意义
 
@@ -195,11 +187,9 @@ $$
 
 ### 公式
 
-$$
-\begin{aligned}
+$$\begin{aligned}
 D_{out} &= K_d \cdot \frac{e - e_{last}}{\Delta t}
-\end{aligned}
-$$
+\end{aligned}$$
 
 ### 物理意义
 
