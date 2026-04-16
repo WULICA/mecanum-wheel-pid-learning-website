@@ -232,22 +232,6 @@ a:hover {
   position: relative;
 }
 
-/* Mac 窗口控制点装饰 */
-.markdown-section pre::before {
-  content: '';
-  position: absolute;
-  top: var(--gap-md);
-  left: var(--gap-lg);
-  width: 36px;
-  height: 8px;
-  background:
-    radial-gradient(circle at 6px center, var(--text-muted) 4px, transparent 4px),
-    radial-gradient(circle at 18px center, var(--text-muted) 4px, transparent 4px),
-    radial-gradient(circle at 30px center, var(--text-muted) 4px, transparent 4px);
-  opacity: 0.3;
-  pointer-events: none;
-}
-
 .markdown-section pre code {
   font-family: var(--font-code);
   font-size: var(--text-sm);
