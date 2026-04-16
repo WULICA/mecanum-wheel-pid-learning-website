@@ -34,10 +34,14 @@
 ### 标准公式（连续形式）
 
 $$
-u(t) = K_p \cdot e(t) + K_i \cdot \int_0^t e(\tau) d\tau + K_d \cdot \frac{de(t)}{dt}
+\begin{aligned}
+u(t) &= K_p \cdot e(t) \\
+&\quad + K_i \cdot \int_0^t e(\tau) d\tau \\
+&\quad + K_d \cdot \frac{de(t)}{dt}
+\end{aligned}
 $$
 
-展开为三项：
+**三项分解：**
 
 | 项 | 公式 | 作用 |
 |:--:|:-----|:-----|
@@ -48,10 +52,14 @@ $$
 ### 离散形式（代码实现）
 
 $$
-u = K_p \cdot e + K_i \cdot \sum e \cdot \Delta t + K_d \cdot \frac{e - e_{last}}{\Delta t}
+\begin{aligned}
+u &= K_p \cdot e \\
+&\quad + K_i \cdot \sum e \cdot \Delta t \\
+&\quad + K_d \cdot \frac{e - e_{last}}{\Delta t}
+\end{aligned}
 $$
 
-展开为三项：
+**三项分解：**
 
 | 项 | 公式 | 说明 |
 |:--:|:-----|:-----|
