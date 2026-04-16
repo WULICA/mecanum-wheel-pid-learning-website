@@ -331,14 +331,41 @@ a:hover {
 }
 
 /* ========== KaTeX 公式 ========== */
+/* 公式容器 - 添加背景和边框，突出显示 */
 .katex-display {
   margin: var(--gap-xl) 0;
   overflow-x: auto;
   text-align: center;
+  padding: var(--gap-lg) var(--gap-xl);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
 }
 
+/* 公式字体 - 使用更大更清晰的字体 */
 .katex {
+  font-size: 1.25em;
+  color: var(--text-primary);
+  line-height: 1.8;
+}
+
+/* 矩阵和分数 - 增加内部间距 */
+.katex .mtable,
+.katex .arraycolsep {
+  padding: 0 0.5em;
+}
+
+.katex .frac-line,
+.katex .sqrt-line {
+  border-top-width: 1px;
+}
+
+/* 行内公式 - 与正文的区分 */
+.katex:not(.katex-display) {
   font-size: 1.1em;
+  padding: 0.1em 0.25em;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
 }
 
 /* ========== 分页导航 ========== */
@@ -634,10 +661,6 @@ pre[class*="language-"] .token.number {
   color: var(--brand-color) !important;
 }
 
-/* KaTeX 公式颜色 */
-.katex {
-  color: var(--text-primary);
-}
 
 /* 复制按钮 */
 .docsify-copy-code-button {

@@ -53,19 +53,36 @@ RR轮：辊子朝向 ╲（左后-右前方向）
 
 ## 运动学公式
 
-### 正向运动学公式
+### 矩阵形式
 
-$$\begin{bmatrix} V_{fl} \\ V_{fr} \\ V_{rl} \\ V_{rr} \end{bmatrix} = \frac{1}{r} \begin{bmatrix} 1 & -1 & -(l_x + l_y) \\ 1 & 1 & (l_x + l_y) \\ 1 & 1 & -(l_x + l_y) \\ 1 & -1 & (l_x + l_y) \end{bmatrix} \begin{bmatrix} V_x \\ V_y \\ \omega \end{bmatrix}$$
+将机器人速度映射到四个轮子速度的矩阵方程：
+
+$$
+\begin{bmatrix} 
+V_{fl} \\ V_{fr} \\ V_{rl} \\ V_{rr} 
+\end{bmatrix} 
+= \frac{1}{r} 
+\begin{bmatrix} 
+1 & -1 & -(l_x + l_y) \\ 
+1 & 1 & (l_x + l_y) \\ 
+1 & 1 & -(l_x + l_y) \\ 
+1 & -1 & (l_x + l_y) 
+\end{bmatrix} 
+\begin{bmatrix} 
+V_x \\ V_y \\ \omega 
+\end{bmatrix}
+$$
 
 ### 展开形式
 
-$$V_{fl} = \frac{1}{r}(V_x - V_y - \omega(l_x + l_y))$$
+逐轮展开后的速度计算公式：
 
-$$V_{fr} = \frac{1}{r}(V_x + V_y + \omega(l_x + l_y))$$
-
-$$V_{rl} = \frac{1}{r}(V_x + V_y - \omega(l_x + l_y))$$
-
-$$V_{rr} = \frac{1}{r}(V_x - V_y + \omega(l_x + l_y))$$
+| 轮子 | 公式 |
+|:----:|:-----|
+| 左前轮 (FL) | $V_{fl} = \frac{1}{r}(V_x - V_y - \omega(l_x + l_y))$ |
+| 右前轮 (FR) | $V_{fr} = \frac{1}{r}(V_x + V_y + \omega(l_x + l_y))$ |
+| 左后轮 (RL) | $V_{rl} = \frac{1}{r}(V_x + V_y - \omega(l_x + l_y))$ |
+| 右后轮 (RR) | $V_{rr} = \frac{1}{r}(V_x - V_y + \omega(l_x + l_y))$ |
 
 ### 参数说明
 

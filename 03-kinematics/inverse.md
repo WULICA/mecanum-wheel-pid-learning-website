@@ -48,17 +48,34 @@
 
 ## 运动学公式
 
-### 逆向运动学公式
+### 矩阵形式
 
-$$\begin{bmatrix} V_x \\ V_y \\ \omega \end{bmatrix} = \frac{r}{4} \begin{bmatrix} 1 & 1 & 1 & 1 \\ -1 & 1 & 1 & -1 \\ -\frac{1}{L} & \frac{1}{L} & -\frac{1}{L} & \frac{1}{L} \end{bmatrix} \begin{bmatrix} V_{fl} \\ V_{fr} \\ V_{rl} \\ V_{rr} \end{bmatrix}$$
+从四个轮子速度反推机器人速度：
+
+$$
+\begin{bmatrix} 
+V_x \\ V_y \\ \omega 
+\end{bmatrix} 
+= \frac{r}{4} 
+\begin{bmatrix} 
+1 & 1 & 1 & 1 \\ 
+-1 & 1 & 1 & -1 \\ 
+-\frac{1}{L} & \frac{1}{L} & -\frac{1}{L} & \frac{1}{L} 
+\end{bmatrix} 
+\begin{bmatrix} 
+V_{fl} \\ V_{fr} \\ V_{rl} \\ V_{rr} 
+\end{bmatrix}
+$$
 
 ### 展开形式
 
-$$V_x = \frac{r}{4}(V_{fl} + V_{fr} + V_{rl} + V_{rr})$$
+逐项展开的计算公式：
 
-$$V_y = \frac{r}{4}(-V_{fl} + V_{fr} + V_{rl} - V_{rr})$$
-
-$$\omega = \frac{r}{4L}(-V_{fl} + V_{fr} - V_{rl} + V_{rr})$$
+| 速度分量 | 公式 |
+|:--------:|:-----|
+| 前进速度 $V_x$ | $V_x = \frac{r}{4}(V_{fl} + V_{fr} + V_{rl} + V_{rr})$ |
+| 平移速度 $V_y$ | $V_y = \frac{r}{4}(-V_{fl} + V_{fr} + V_{rl} - V_{rr})$ |
+| 旋转角速度 $\omega$ | $\omega = \frac{r}{4L}(-V_{fl} + V_{fr} - V_{rl} + V_{rr})$ |
 
 ### 物理意义
 
