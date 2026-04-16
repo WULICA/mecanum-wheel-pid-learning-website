@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>麦氏轮PID控制学习指南</title>
+
+  <!-- Google Fonts: Noto Sans SC + JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- KaTeX 公式渲染 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+
+  <!-- Docsify 基础主题（将被自定义CSS覆盖） -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
+
+  <!-- 自定义 E-Ink Paper 风格 CSS -->
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <div id="app"></div>
+
+  <script>
+    window.$docsify = {
+      // 网站名称
+      name: '麦氏轮PID控制学习指南',
+      nameLink: '/',
+
+      // 仓库链接（可选）
+      repo: '',
+
+      // 侧边栏配置
+      loadSidebar: '_sidebar.md',
+      subMaxLevel: 3,
+      sidebarDisplayLevel: 1,
+
+      // 导航栏配置
+      loadNavbar: '_navbar.md',
+
+      // 路径别名 - 让所有子页面都从根目录加载 sidebar/navbar
+      alias: {
+        '/.*/_sidebar.md': '_sidebar.md',
+        '/.*/_navbar.md': '_navbar.md'
+      },
+
+      // 自动跳转到顶部
+      auto2top: true,
+
+      // 搜索配置
+      search: {
+        maxAge: 86400000,
+        paths: 'auto',
+        placeholder: '搜索文档',
+        noData: '没有找到结果',
+        depth: 6
+      },
+
+      // 分页导航配置
+      pagination: {
+        previousText: '上一章节',
+        nextText: '下一章节',
+        crossChapter: true,
+        crossChapterText: true,
+      },
+
+      // 字数统计
+      count: {
+        countable: true,
+        fontsize: false,
+        language: 'chinese'
+      },
+
+      // 外部脚本支持
+      externalLinkTarget: '_blank',
+
+      // 相对路径支持 - 关闭以使用绝对路径
+      relativePath: false,
+
+      // 页面跳转路由
+      routerMode: 'hash'
+    };
+  </script>
+
+  <!-- Docsify 核心 -->
+  <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/docsify.min.js"></script>
+
+  <!-- Docsify 插件 -->
+  <!-- 搜索 -->
+  <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.min.js"></script>
+
+  <!-- 外部脚本 -->
+  <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/plugins/external-script.min.js"></script>
+
+  <!-- emoji 支持（用于图标，但我们将优先使用纯文字） -->
+  <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/plugins/emoji.min.js"></script>
+
+  <!-- 分页导航 -->
+  <script src="https://cdn.jsdelivr.net/npm/docsify-pagination@2/dist/docsify-pagination.min.js"></script>
+
+  <!-- 字数统计 -->
+  <script src="https://cdn.jsdelivr.net/npm/docsify-count@latest/dist/countable.min.js"></script>
+
+  <!-- KaTeX 数学公式 -->
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify-katex@1.0.3/dist/docsify-katex.min.js"></script>
+
+  <!-- Prism.js 代码高亮语言支持 -->
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-c.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-clike.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-markdown.min.js"></script>
+
+  <!-- 移动端侧边栏切换 -->
+  <script>
+    // 移动端侧边栏切换功能
+    document.addEventListener('DOMContentLoaded', function() {
+      // 创建汉堡菜单按钮
+      const toggleBtn = document.createElement('button');
+      toggleBtn.className = 'sidebar-toggle-button';
+      toggleBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>';
+      toggleBtn.setAttribute('aria-label', '切换侧边栏');
+
+      // 创建遮罩层
+      const overlay = document.createElement('div');
+      overlay.className = 'sidebar-overlay';
+
+      document.body.appendChild(toggleBtn);
+      document.body.appendChild(overlay);
+
+      // 点击切换
+      toggleBtn.addEventListener('click', function() {
+        document.querySelector('.sidebar').classList.toggle('show');
+        overlay.classList.toggle('show');
+      });
+
+      overlay.addEventListener('click', function() {
+        document.querySelector('.sidebar').classList.remove('show');
+        overlay.classList.remove('show');
+      });
+
+      // 添加样式
+      const style = document.createElement('style');
+      style.textContent = `
+        .sidebar-toggle-button {
+          display: none;
+          position: fixed;
+          top: 1rem;
+          left: 1rem;
+          z-index: 101;
+          width: 40px;
+          height: 40px;
+          background: oklch(98% 0.002 25);
+          border: 1px solid oklch(85% 0.008 25);
+          border-radius: 0.25rem;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          color: oklch(28% 0.02 25);
+          transition: background 150ms ease-out;
+        }
+        .sidebar-toggle-button:hover {
+          background: oklch(96% 0.004 25);
+        }
+        .sidebar-overlay {
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.3);
+          z-index: 99;
+          opacity: 0;
+          visibility: hidden;
+          transition: opacity 250ms ease-out, visibility 250ms ease-out;
+        }
+        .sidebar-overlay.show {
+          opacity: 1;
+          visibility: visible;
+        }
+        @media screen and (max-width: 768px) {
+          .sidebar-toggle-button {
+            display: flex;
+          }
+        }
+      `;
+      document.head.appendChild(style);
+    });
+  </script>
+</body>
+</html>

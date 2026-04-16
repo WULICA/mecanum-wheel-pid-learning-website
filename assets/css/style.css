@@ -1,0 +1,736 @@
+/**
+ * 麦氏轮 PID 控制学习网站 - E-Ink Paper 风格
+ * 遵循 Impeccable 设计原则
+ *
+ * 设计风格: E-Ink Paper + Academic
+ * 配色: Warm Paper (米白褐红)
+ */
+
+:root {
+  /* ========== 品牌 hue ========== */
+  --brand-hue: 25;      /* 勃艮第红/暖褐色 */
+  --accent-hue: 45;     /* 琥珀色 */
+
+  /* ========== E-Ink Paper 配色（OKLCH）========== */
+  --bg-primary: oklch(98% 0.002 var(--brand-hue));     /* 米白纸张 */
+  --bg-secondary: oklch(96% 0.004 var(--brand-hue));   /* 淡米色 */
+  --bg-tertiary: oklch(93% 0.006 var(--brand-hue));    /* 代码块背景 */
+
+  --text-primary: oklch(28% 0.02 var(--brand-hue));    /* 深灰褐 */
+  --text-secondary: oklch(45% 0.012 var(--brand-hue)); /* 正文 */
+  --text-muted: oklch(65% 0.006 var(--brand-hue));     /* 辅助 */
+
+  --brand-color: oklch(40% 0.12 var(--brand-hue));     /* 勃艮第红 */
+  --brand-hover: oklch(38% 0.14 var(--brand-hue));
+  --brand-light: oklch(96% 0.02 var(--brand-hue) / 0.3);
+
+  --accent-color: oklch(62% 0.18 var(--accent-hue));   /* 琥珀 */
+  --accent-light: oklch(97% 0.02 var(--accent-hue) / 0.4);
+
+  --border-color: oklch(85% 0.008 var(--brand-hue));   /* 浅褐灰 */
+  --border-light: oklch(92% 0.003 var(--brand-hue));
+
+  /* ========== 字体系统 ========== */
+  --font-sans: 'Noto Sans SC', 'Source Han Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-code: 'JetBrains Mono', 'Fira Code', 'SFMono-Regular', Consolas, monospace;
+
+  /* 字体大小（印刷级比例）*/
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+
+  /* 宽松行距（E-Ink 风格）*/
+  --leading-normal: 1.65;
+  --leading-relaxed: 1.8;
+
+  /* ========== 间距系统（4pt）========== */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-8: 3rem;
+  --space-10: 4rem;
+
+  --gap-xs: var(--space-1);
+  --gap-sm: var(--space-2);
+  --gap-md: var(--space-3);
+  --gap-lg: var(--space-4);
+  --gap-xl: var(--space-5);
+  --gap-2xl: var(--space-6);
+
+  /* ========== 圆角（温和）========== */
+  --radius-sm: 0.125rem;
+  --radius-md: 0.25rem;
+  --radius-lg: 0.375rem;
+
+  /* ========== 过渡 ========== */
+  --transition-fast: 150ms ease-out;
+  --transition-normal: 250ms ease-out;
+
+  /* ========== 布局 ========== */
+  --sidebar-width: 260px;
+  --content-max-width: 720px;  /* 印刷标准：65-72ch */
+}
+
+/* ========== 全局重置 ========== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ========== 全局基础 ========== */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ========== 链接 ========== */
+a {
+  color: var(--brand-color);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+  cursor: pointer;
+}
+
+a:hover {
+  color: var(--brand-hover);
+  text-decoration: underline;
+}
+
+/* ========== 侧边栏 ========== */
+.sidebar {
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+  padding: var(--gap-xl);
+  overflow-y: auto;
+}
+
+.sidebar > ul > li > p {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: var(--gap-sm);
+  margin-top: var(--gap-xl);
+}
+
+.sidebar ul ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.sidebar ul ul a {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  padding: var(--gap-sm) var(--gap-md);
+  border-radius: var(--radius-sm);
+  display: block;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.sidebar ul ul a:hover {
+  background: var(--bg-tertiary);
+  color: var(--brand-color);
+  text-decoration: none;
+}
+
+.sidebar ul ul a.active {
+  background: var(--brand-light);
+  color: var(--brand-color);
+  font-weight: 500;
+}
+
+/* ========== 主内容区 ========== */
+.content {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  padding: var(--gap-2xl) var(--gap-xl);
+}
+
+/* Docsify 主内容区类名 */
+.markdown-section {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  padding: var(--gap-2xl) var(--gap-xl);
+}
+
+/* ========== 标题 ========== */
+.markdown-section h1 {
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--gap-lg);
+  padding-bottom: var(--gap-md);
+  border-bottom: 2px solid var(--brand-color);
+  letter-spacing: -0.01em;
+}
+
+.markdown-section h2 {
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: var(--gap-2xl);
+  margin-bottom: var(--gap-md);
+  padding-bottom: var(--gap-sm);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.markdown-section h3 {
+  font-size: var(--text-xl);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: var(--gap-xl);
+  margin-bottom: var(--gap-md);
+}
+
+.markdown-section h4,
+.markdown-section h5,
+.markdown-section h6 {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: var(--gap-lg);
+  margin-bottom: var(--gap-md);
+}
+
+/* ========== 段落 ========== */
+.markdown-section p {
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+  margin-bottom: var(--gap-md);
+  max-width: 65ch;
+}
+
+/* ========== 代码块 ========== */
+.markdown-section pre {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--gap-lg);
+  margin: var(--gap-xl) 0;
+  overflow-x: auto;
+  position: relative;
+}
+
+/* Mac 窗口控制点装饰 */
+.markdown-section pre::before {
+  content: '';
+  position: absolute;
+  top: var(--gap-md);
+  left: var(--gap-lg);
+  width: 36px;
+  height: 8px;
+  background:
+    radial-gradient(circle at 6px center, var(--text-muted) 4px, transparent 4px),
+    radial-gradient(circle at 18px center, var(--text-muted) 4px, transparent 4px),
+    radial-gradient(circle at 30px center, var(--text-muted) 4px, transparent 4px);
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.markdown-section pre code {
+  font-family: var(--font-code);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  color: var(--text-primary);
+  background: transparent;
+  padding: 0;
+}
+
+/* ========== 行内代码 ========== */
+.markdown-section code {
+  font-family: var(--font-code);
+  font-size: 0.9em;
+  background: var(--bg-tertiary);
+  padding: 0.15em 0.4em;
+  border-radius: var(--radius-sm);
+  color: var(--brand-color);
+}
+
+/* ========== 表格 ========== */
+.markdown-section table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: var(--gap-xl) 0;
+  display: table;
+}
+
+.markdown-section thead {
+  background: var(--bg-tertiary);
+}
+
+.markdown-section th {
+  font-weight: 600;
+  text-align: left;
+  padding: var(--gap-md) var(--gap-lg);
+  border-bottom: 2px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.markdown-section td {
+  padding: var(--gap-md) var(--gap-lg);
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-secondary);
+}
+
+.markdown-section tbody tr:nth-child(even) {
+  background: var(--bg-secondary);
+}
+
+.markdown-section tbody tr:hover {
+  background: var(--brand-light);
+}
+
+/* ========== 引用块 ========== */
+.markdown-section blockquote {
+  background: var(--bg-secondary);
+  padding: var(--gap-lg) var(--gap-xl);
+  margin: var(--gap-xl) 0;
+  border-radius: var(--radius-lg);
+  color: var(--text-secondary);
+  border-top: 2px solid var(--brand-color);
+  /* Impeccable: 无侧边条边框！使用顶部色带 */
+}
+
+.markdown-section blockquote p {
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ========== 列表 ========== */
+.markdown-section ul,
+.markdown-section ol {
+  margin-bottom: var(--gap-md);
+  padding-left: var(--gap-xl);
+}
+
+.markdown-section li {
+  margin-bottom: var(--gap-sm);
+  color: var(--text-secondary);
+  line-height: var(--leading-normal);
+}
+
+/* ========== KaTeX 公式 ========== */
+.katex-display {
+  margin: var(--gap-xl) 0;
+  overflow-x: auto;
+  text-align: center;
+}
+
+.katex {
+  font-size: 1.1em;
+}
+
+/* ========== 分页导航 ========== */
+.pagination-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--gap-2xl);
+  padding-top: var(--gap-xl);
+  border-top: 1px solid var(--border-light);
+}
+
+.pagination-nav-item {
+  flex: 1;
+  max-width: 45%;
+}
+
+.pagination-nav-item a {
+  display: block;
+  padding: var(--gap-md) var(--gap-lg);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+  text-decoration: none;
+}
+
+.pagination-nav-item a:hover {
+  background: var(--brand-light);
+  border-color: var(--border-color);
+}
+
+.pagination-nav-label {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.pagination-nav-title {
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* ========== 搜索框 ========== */
+.search {
+  margin-bottom: var(--gap-xl);
+}
+
+.search input {
+  width: 100%;
+  padding: var(--gap-sm) var(--gap-md);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.search input:focus {
+  border-color: var(--brand-color);
+}
+
+.search input::placeholder {
+  color: var(--text-muted);
+}
+
+/* ========== 移动端适配 ========== */
+@media screen and (max-width: 768px) {
+  :root {
+    --sidebar-width: 0;
+  }
+
+  .sidebar {
+    position: fixed;
+    left: -280px;
+    width: 280px;
+    height: 100vh;
+    z-index: 100;
+    transition: left var(--transition-normal);
+    box-shadow: none;
+  }
+
+  .sidebar.show {
+    left: 0;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .markdown-section {
+    padding: var(--gap-lg);
+    max-width: 100%;
+  }
+
+  .markdown-section h1 {
+    font-size: var(--text-2xl);
+  }
+
+  .markdown-section h2 {
+    font-size: var(--text-xl);
+  }
+
+  .markdown-section pre {
+    padding: var(--gap-md);
+  }
+
+  /* 移动端菜单按钮 */
+  .sidebar-toggle {
+    position: fixed;
+    top: var(--gap-md);
+    left: var(--gap-md);
+    z-index: 101;
+    width: 40px;
+    height: 40px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+}
+
+/* ========== 桌面端扩展 ========== */
+@media screen and (min-width: 1024px) {
+  .markdown-section {
+    max-width: 800px;
+    padding: var(--gap-2xl) var(--gap-2xl);
+  }
+}
+
+/* ========== 滚动条 ========== */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* ========== 选中文本 ========== */
+::selection {
+  background: var(--brand-light);
+  color: var(--brand-color);
+}
+
+/* ========== 加载状态 ========== */
+#app {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#app::after {
+  content: '加载中...';
+  font-size: var(--text-lg);
+  color: var(--text-muted);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+/* ========== Prism.js 代码高亮配色（替换默认绿色）========== */
+/* 关键字 - 用勃艮第红 */
+.token.keyword,
+.token.keyword-function,
+.token.keyword-var,
+.token.keyword-const,
+.token.keyword-return {
+  color: oklch(50% 0.10 var(--brand-hue));
+}
+
+/* 字符串 - 用琥珀色 */
+.token.string,
+.token.string-quoted,
+.token.string-template,
+.token.attr-value {
+  color: oklch(55% 0.12 var(--accent-hue));
+}
+
+/* 函数名 - 用深灰褐 */
+.token.function,
+.token.function-name,
+.token.class-name {
+  color: oklch(35% 0.015 var(--brand-hue));
+  font-weight: 500;
+}
+
+/* 数字 - 用琥珀色 */
+.token.number,
+.token.number-integer,
+.token.number-float {
+  color: oklch(50% 0.10 var(--accent-hue));
+}
+
+/* 注释 - 用浅灰色 */
+.token.comment,
+.token.line-comment,
+.token.block-comment {
+  color: oklch(55% 0.005 var(--brand-hue));
+  font-style: italic;
+}
+
+/* 变量 - 用深灰褐 */
+.token.variable,
+.token.variable-local,
+.token.identifier {
+  color: var(--text-primary);
+}
+
+/* 操作符 - 用勃艮第红 */
+.token.operator,
+.token.punctuation {
+  color: oklch(45% 0.08 var(--brand-hue));
+}
+
+/* 类型/预处理器 - 用琥珀 */
+.token.constant,
+.token.builtin,
+.token.type {
+  color: oklch(55% 0.12 var(--accent-hue));
+}
+
+/* ========== Docsify 默认主题覆盖 ========== */
+/* 搜索框高亮 - 用勃艮第红 */
+.search a {
+  color: var(--brand-color);
+}
+
+/* 导航栏 */
+.navbar a {
+  color: var(--brand-color);
+}
+
+/* 分页导航按钮 */
+.docsify-pagination-container .pagination-item {
+  color: var(--brand-color);
+}
+
+/* 侧边栏标题 - 用勃艮第红而非绿色 */
+.sidebar-nav > ul > li > p > a {
+  color: var(--brand-color);
+}
+
+/* ========== 强制覆盖 Docsify vue.css 的绿色 ========== */
+/* Vue 主题的绿色 #42b983 全面替换为勃艮第红 */
+.app-name-link,
+.sidebar-toggle,
+.navbar a:hover,
+.pagination-item:hover,
+.search .matching-query,
+.markdown-section a.anchor,
+.markdown-section a.anchor span {
+  color: var(--brand-color) !important;
+}
+
+/* 代码块语法高亮 - 强制覆盖 Prism 默认 */
+pre[class*="language-"] .token.keyword {
+  color: oklch(50% 0.10 var(--brand-hue)) !important;
+}
+
+pre[class*="language-"] .token.string {
+  color: oklch(55% 0.12 var(--accent-hue)) !important;
+}
+
+pre[class*="language-"] .token.function {
+  color: oklch(35% 0.015 var(--brand-hue)) !important;
+}
+
+pre[class*="language-"] .token.number {
+  color: oklch(50% 0.10 var(--accent-hue)) !important;
+}
+
+/* Docsify 搜索结果匹配 */
+.search .results p.matching-query mark {
+  background: var(--brand-light) !important;
+  color: var(--brand-color) !important;
+}
+
+/* KaTeX 公式颜色 */
+.katex {
+  color: var(--text-primary);
+}
+
+/* 复制按钮 */
+.docsify-copy-code-button {
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+}
+
+.docsify-copy-code-button:hover {
+  background: var(--brand-light);
+  color: var(--brand-color);
+}
+
+/* ========== 强制覆盖 Docsify vue.css 绿色 #42b983 ========== */
+/* vue.css 的绿色来自 Vue.js 品牌，必须用 !important 强制覆盖 */
+
+/* 引用块 - 移除左侧绿色边框，改为顶部色带 */
+.markdown-section blockquote {
+  border-left: none !important;
+  border-top: 2px solid var(--brand-color) !important;
+  background: var(--bg-secondary) !important;
+  padding: var(--gap-lg) var(--gap-xl) !important;
+  margin: var(--gap-xl) 0 !important;
+  border-radius: var(--radius-lg) !important;
+}
+
+/* 侧边栏选中高亮 - 用勃艮第红 */
+.sidebar ul ul a.active {
+  background: var(--brand-light) !important;
+  color: var(--brand-color) !important;
+}
+
+/* 侧边栏链接 */
+.sidebar ul ul a {
+  color: var(--text-secondary) !important;
+}
+
+.sidebar ul ul a:hover {
+  color: var(--brand-color) !important;
+  background: var(--bg-tertiary) !important;
+}
+
+/* 章节标题链接 */
+.markdown-section h1 a,
+.markdown-section h2 a,
+.markdown-section h3 a,
+.markdown-section h4 a {
+  color: var(--text-primary) !important;
+}
+
+/* 锚点链接图标 */
+.markdown-section a.anchor {
+  color: var(--brand-color) !important;
+}
+
+/* 网站/项目名称链接 */
+.app-name-link {
+  color: var(--brand-color) !important;
+}
+
+/* 分页导航 */
+.pagination-item {
+  color: var(--text-secondary) !important;
+}
+
+.pagination-item:hover {
+  color: var(--brand-color) !important;
+}
+
+.pagination-item-label {
+  color: var(--text-muted) !important;
+}
+
+/* 搜索匹配 */
+.search .matching-query,
+.search .results p.matching-query mark {
+  color: var(--brand-color) !important;
+  background: var(--brand-light) !important;
+}
+
+/* 搜索结果链接 */
+.search .results a {
+  color: var(--text-primary) !important;
+}
+
+.search .results a:hover {
+  color: var(--brand-color) !important;
+}
+
+/* 强制移除 vue.css 的所有绿色 */
+:root {
+  --theme-color: oklch(40% 0.12 25) !important;
+  --theme-color-dark: oklch(38% 0.14 25) !important;
+  --theme-color-light: oklch(96% 0.02 25) !important;
+}
+}
