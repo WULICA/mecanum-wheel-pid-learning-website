@@ -33,46 +33,42 @@
 
 ### 标准公式（连续形式）
 
-$$\begin{aligned}
-u(t) &= K_p \cdot e(t) \\
-&\quad + K_i \cdot \int_0^t e(\tau) d\tau \\
-&\quad + K_d \cdot \frac{de(t)}{dt}
-\end{aligned}$$
+```
+u(t) = Kp · e(t) + Ki · ∫e(τ)dτ + Kd · de(t)/dt
+```
 
 **三项分解：**
 
 | 项 | 公式 | 作用 |
 |:--:|:-----|:-----|
-| P项 | $K_p \cdot e(t)$ | 比例响应 |
-| I项 | $K_i \cdot \int_0^t e(\tau) d\tau$ | 积分累积 |
-| D项 | $K_d \cdot \frac{de(t)}{dt}$ | 微分预测 |
+| P项 | Kp · e(t) | 比例响应 |
+| I项 | Ki · ∫e(τ)dτ | 积分累积 |
+| D项 | Kd · de(t)/dt | 微分预测 |
 
 ### 离散形式（代码实现）
 
-$$\begin{aligned}
-u &= K_p \cdot e \\
-&\quad + K_i \cdot \sum e \cdot \Delta t \\
-&\quad + K_d \cdot \frac{e - e_{last}}{\Delta t}
-\end{aligned}$$
+```
+u = Kp · e + Ki · Σe · Δt + Kd · (e - e_last) / Δt
+```
 
 **三项分解：**
 
 | 项 | 公式 | 说明 |
 |:--:|:-----|:-----|
-| P项 | $K_p \cdot e$ | 当前误差 |
-| I项 | $K_i \cdot \sum e \cdot \Delta t$ | 累积误差 |
-| D项 | $K_d \cdot \frac{e - e_{last}}{\Delta t}$ | 误差变化 |
+| P项 | Kp · e | 当前误差 |
+| I项 | Ki · Σe · Δt | 累积误差 |
+| D项 | Kd · (e - e_last) / Δt | 误差变化 |
 
 ### 参数说明
 
 | 符号 | 含义 | 说明 |
 |:----:|:----:|:-----|
-| $u$ | 输出 | PWM调整量 |
-| $e$ | 误差 | target - current |
-| $K_p$ | 比例系数 | P项权重 |
-| $K_i$ | 积分系数 | I项权重 |
-| $K_d$ | 微分系数 | D项权重 |
-| $\Delta t$ | 采样周期 | 两次计算的时间间隔 |
+| u | 输出 | PWM调整量 |
+| e | 误差 | target - current |
+| Kp | 比例系数 | P项权重 |
+| Ki | 积分系数 | I项权重 |
+| Kd | 微分系数 | D项权重 |
+| Δt | 采样周期 | 两次计算的时间间隔 |
 
 ---
 
@@ -80,9 +76,9 @@ u &= K_p \cdot e \\
 
 ### 公式
 
-$$\begin{aligned}
-P_{out} &= K_p \cdot e
-\end{aligned}$$
+```
+P_out = Kp · e
+```
 
 ### 物理意义
 
@@ -131,9 +127,9 @@ P_{out} &= K_p \cdot e
 
 ### 公式
 
-$$\begin{aligned}
-I_{out} &= K_i \cdot \sum e \cdot \Delta t
-\end{aligned}$$
+```
+I_out = Ki · Σe · Δt
+```
 
 ### 物理意义
 
@@ -187,9 +183,9 @@ I_{out} &= K_i \cdot \sum e \cdot \Delta t
 
 ### 公式
 
-$$\begin{aligned}
-D_{out} &= K_d \cdot \frac{e - e_{last}}{\Delta t}
-\end{aligned}$$
+```
+D_out = Kd · (e - e_last) / Δt
+```
 
 ### 物理意义
 

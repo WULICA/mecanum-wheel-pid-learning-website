@@ -24,19 +24,19 @@
 
 ### RPM 计算公式
 
-$$\begin{aligned}
-RPM &= \frac{\Delta count \times 60}{PPR \times \Delta t}
-\end{aligned}$$
+```
+RPM = (Δcount × 60) / (PPR × Δt)
+```
 
 ### 参数说明
 
 | 符号 | 含义 | 单位 | 说明 |
 |:----:|:-----|:-----|:-----|
-| $RPM$ | 转速 | 转/分钟 | Revolutions Per Minute |
-| $\Delta count$ | 脉冲变化量 | 个 | 测量周期内的脉冲计数变化 |
-| $PPR$ | 每转脉冲数 | 个/转 | Pulses Per Revolution |
-| $\Delta t$ | 测量周期 | 秒 | 两次读数的时间间隔 |
-| $60$ | 时间换算系数 | 秒/分钟 | 60秒 = 1分钟 |
+| RPM | 转速 | 转/分钟 | Revolutions Per Minute |
+| Δcount | 脉冲变化量 | 个 | 测量周期内的脉冲计数变化 |
+| PPR | 每转脉冲数 | 个/转 | Pulses Per Revolution |
+| Δt | 测量周期 | 秒 | 两次读数的时间间隔 |
+| 60 | 时间换算系数 | 秒/分钟 | 60秒 = 1分钟 |
 
 ---
 
@@ -150,15 +150,15 @@ void TIM_IRQHandler(void) {
 
 ### 线速度公式
 
-$$\begin{aligned}
-V &= \frac{RPM \times 2\pi r}{60}
-\end{aligned}$$
+```
+V = (RPM × 2πr) / 60
+```
 
 | 符号 | 含义 | 单位 |
 |:----:|:-----|:-----|
-| $V$ | 线速度 | m/s |
-| $r$ | 轮子半径 | m |
-| $RPM$ | 转速 | 转/分钟 |
+| V | 线速度 | m/s |
+| r | 轮子半径 | m |
+| RPM | 转速 | 转/分钟 |
 
 ### 代码
 
@@ -241,9 +241,9 @@ STM32的编码器模式下，可以配置自动重装载值，让计数器在达
 
 ## 本节要点
 
-1. **基本公式**：$RPM = \frac{\Delta count \times 60}{PPR \times \Delta t}$
+1. **基本公式**：`RPM = (Δcount × 60) / (PPR × Δt)`
 2. **系数简化**：预先计算 `60/(PPR×Δt)` 可以简化代码
-3. **线速度换算**：$V = \frac{RPM \times 2\pi r}{60}$
+3. **线速度换算**：`V = (RPM × 2πr) / 60`
 4. **溢出处理**：注意16位计数器的溢出问题
 5. **周期选择**：10ms是常用的平衡选择
 

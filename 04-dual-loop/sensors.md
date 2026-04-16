@@ -31,9 +31,9 @@
 
 ### 方法：四轮速度平均
 
-$$\begin{aligned}
-V_x &= \frac{V_{fl} + V_{fr} + V_{rl} + V_{rr}}{4}
-\end{aligned}$$
+```
+Vx = (V_fl + V_fr + V_rl + V_rr) / 4
+```
 
 ### 为什么用平均？
 
@@ -100,9 +100,9 @@ float get_Vy(void) {
 
 ### 方法1：从轮速推算（不推荐）
 
-$$\begin{aligned}
-\omega &= \frac{-V_{fl} + V_{fr} - V_{rl} + V_{rr}}{4L}
-\end{aligned}$$
+```
+ω = (-V_fl + V_fr - V_rl + V_rr) / (4L)
+```
 
 **问题**：
 - 轮子打滑时误差大
@@ -245,7 +245,7 @@ Vy不控制：
 
 **特点**：
 - 如UWB、视觉定位
-- 精度高，成本高
+- 度高，成本高
 
 ---
 

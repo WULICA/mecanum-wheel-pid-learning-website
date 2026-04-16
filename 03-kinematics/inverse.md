@@ -52,20 +52,12 @@
 
 从四个轮子速度反推机器人速度：
 
-$$\begin{aligned}
-\begin{bmatrix} 
-V_x \\ V_y \\ \omega 
-\end{bmatrix} 
-= \frac{r}{4} 
-\begin{bmatrix} 
-1 & 1 & 1 & 1 \\ 
--1 & 1 & 1 & -1 \\ 
--\frac{1}{L} & \frac{1}{L} & -\frac{1}{L} & \frac{1}{L} 
-\end{bmatrix} 
-\begin{bmatrix} 
-V_{fl} \\ V_{fr} \\ V_{rl} \\ V_{rr} 
-\end{bmatrix}
-\end{aligned}$$
+```
+[Vx]   [ 1   1   1   1 ]   [V_fl]
+[Vy] = [-1   1   1  -1] × [V_fr] × r/4
+[ω]    [-1/L 1/L -1/L 1/L]   [V_rl]
+                          [V_rr]
+```
 
 ### 展开形式
 
@@ -73,9 +65,9 @@ V_{fl} \\ V_{fr} \\ V_{rl} \\ V_{rr}
 
 | 速度分量 | 公式 |
 |:--------:|:-----|
-| 前进速度 $V_x$ | $V_x = \frac{r}{4}(V_{fl} + V_{fr} + V_{rl} + V_{rr})$ |
-| 平移速度 $V_y$ | $V_y = \frac{r}{4}(-V_{fl} + V_{fr} + V_{rl} - V_{rr})$ |
-| 旋转角速度 $\omega$ | $\omega = \frac{r}{4L}(-V_{fl} + V_{fr} - V_{rl} + V_{rr})$ |
+| 前进速度 Vx | `Vx = r/4 × (V_fl + V_fr + V_rl + V_rr)` |
+| 平移速度 Vy | `Vy = r/4 × (-V_fl + V_fr + V_rl - V_rr)` |
+| 旋转角速度 ω | `ω = r/(4L) × (-V_fl + V_fr - V_rl + V_rr)` |
 
 ### 物理意义
 
@@ -95,44 +87,38 @@ V_{fl} \\ V_{fr} \\ V_{rl} \\ V_{rr}
 
 ### 简化推导
 
-从正向公式（假设 $r=1$ 简化）：
+从正向公式（假设 r=1 简化）：
 
 | 轮子 | 正向公式 |
 |:----:|:---------|
-| FL | $V_{fl} = V_x - V_y - \omega L$ |
-| FR | $V_{fr} = V_x + V_y + \omega L$ |
-| RL | $V_{rl} = V_x + V_y - \omega L$ |
-| RR | $V_{rr} = V_x - V_y + \omega L$ |
+| FL | `V_fl = Vx - Vy - ωL` |
+| FR | `V_fr = Vx + Vy + ωL` |
+| RL | `V_rl = Vx + Vy - ωL` |
+| RR | `V_rr = Vx - Vy + ωL` |
 
-**求 $V_x$**：四式相加
+**求 Vx**：四式相加
 
-$$\begin{aligned}
-V_{fl} + V_{fr} + V_{rl} + V_{rr} &= 4V_x
-\end{aligned}$$
+```
+V_fl + V_fr + V_rl + V_rr = 4Vx
 
-$$\begin{aligned}
-V_x &= \frac{V_{fl} + V_{fr} + V_{rl} + V_{rr}}{4}
-\end{aligned}$$
+Vx = (V_fl + V_fr + V_rl + V_rr) / 4
+```
 
-**求 $V_y$**：$(V_{fr} + V_{rl}) - (V_{fl} + V_{rr})$
+**求 Vy**：(V_fr + V_rl) - (V_fl + V_rr)
 
-$$\begin{aligned}
-V_{fr} + V_{rl} - V_{fl} - V_{rr} &= 4V_y
-\end{aligned}$$
+```
+V_fr + V_rl - V_fl - V_rr = 4Vy
 
-$$\begin{aligned}
-V_y &= \frac{-V_{fl} + V_{fr} + V_{rl} - V_{rr}}{4}
-\end{aligned}$$
+Vy = (-V_fl + V_fr + V_rl - V_rr) / 4
+```
 
-**求 $\omega$**：$(V_{fr} + V_{rr}) - (V_{fl} + V_{rl})$
+**求 ω**：(V_fr + V_rr) - (V_fl + V_rl)
 
-$$\begin{aligned}
-V_{fr} + V_{rr} - V_{fl} - V_{rl} &= 4\omega L
-\end{aligned}$$
+```
+V_fr + V_rr - V_fl - V_rl = 4ωL
 
-$$\begin{aligned}
-\omega &= \frac{-V_{fl} + V_{fr} - V_{rl} + V_{rr}}{4L}
-\end{aligned}$$
+ω = (-V_fl + V_fr - V_rl + V_rr) / (4L)
+```
 
 ---
 

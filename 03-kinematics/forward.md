@@ -57,21 +57,12 @@ RR轮：辊子朝向 ╲（左后-右前方向）
 
 将机器人速度映射到四个轮子速度的矩阵方程：
 
-$$\begin{aligned}
-\begin{bmatrix} 
-V_{fl} \\ V_{fr} \\ V_{rl} \\ V_{rr} 
-\end{bmatrix} 
-= \frac{1}{r} 
-\begin{bmatrix} 
-1 & -1 & -(l_x + l_y) \\ 
-1 & 1 & (l_x + l_y) \\ 
-1 & 1 & -(l_x + l_y) \\ 
-1 & -1 & (l_x + l_y) 
-\end{bmatrix} 
-\begin{bmatrix} 
-V_x \\ V_y \\ \omega 
-\end{bmatrix}
-\end{aligned}$$
+```
+[V_fl]   [1  -1  -(lx+ly)]   [Vx]
+[V_fr] = [1   1   (lx+ly)] × [Vy] / r
+[V_rl]   [1   1  -(lx+ly)]   [ω]
+[V_rr]   [1  -1   (lx+ly)]
+```
 
 ### 展开形式
 
@@ -79,10 +70,10 @@ V_x \\ V_y \\ \omega
 
 | 轮子 | 公式 |
 |:----:|:-----|
-| 左前轮 (FL) | $V_{fl} = \frac{1}{r}(V_x - V_y - \omega(l_x + l_y))$ |
-| 右前轮 (FR) | $V_{fr} = \frac{1}{r}(V_x + V_y + \omega(l_x + l_y))$ |
-| 左后轮 (RL) | $V_{rl} = \frac{1}{r}(V_x + V_y - \omega(l_x + l_y))$ |
-| 右后轮 (RR) | $V_{rr} = \frac{1}{r}(V_x - V_y + \omega(l_x + l_y))$ |
+| 左前轮 (FL) | `V_fl = (Vx - Vy - ω(lx+ly)) / r` |
+| 右前轮 (FR) | `V_fr = (Vx + Vy + ω(lx+ly)) / r` |
+| 左后轮 (RL) | `V_rl = (Vx + Vy - ω(lx+ly)) / r` |
+| 右后轮 (RR) | `V_rr = (Vx - Vy + ω(lx+ly)) / r` |
 
 ### 参数说明
 
@@ -110,7 +101,7 @@ V_x \\ V_y \\ \omega
     └────────┘
 ```
 
-通常定义：$L = l_x + l_y$
+通常定义：`L = lx + ly`
 
 ---
 
