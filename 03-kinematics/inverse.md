@@ -55,16 +55,16 @@
 $$
 \begin{aligned}
 \begin{bmatrix} 
-V_x \\ V_y \\ \omega 
+V_x \\\\ V_y \\\\ \omega 
 \end{bmatrix} 
 = \frac{r}{4} 
 \begin{bmatrix} 
-1 & 1 & 1 & 1 \\ 
--1 & 1 & 1 & -1 \\ 
+1 & 1 & 1 & 1 \\\\ 
+-1 & 1 & 1 & -1 \\\\ 
 -\frac{1}{L} & \frac{1}{L} & -\frac{1}{L} & \frac{1}{L} 
 \end{bmatrix} 
 \begin{bmatrix} 
-V_{fl} \\ V_{fr} \\ V_{rl} \\ V_{rr} 
+V_{fl} \\\\ V_{fr} \\\\ V_{rl} \\\\ V_{rr} 
 \end{bmatrix}
 \end{aligned}
 $$

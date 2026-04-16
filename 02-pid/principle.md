@@ -35,8 +35,8 @@
 
 $$
 \begin{aligned}
-u(t) &= K_p \cdot e(t) \\
-&\quad + K_i \cdot \int_0^t e(\tau) d\tau \\
+u(t) &= K_p \cdot e(t) \\\\
+&\quad + K_i \cdot \int_0^t e(\tau) d\tau \\\\
 &\quad + K_d \cdot \frac{de(t)}{dt}
 \end{aligned}
 $$
@@ -53,8 +53,8 @@ $$
 
 $$
 \begin{aligned}
-u &= K_p \cdot e \\
-&\quad + K_i \cdot \sum e \cdot \Delta t \\
+u &= K_p \cdot e \\\\
+&\quad + K_i \cdot \sum e \cdot \Delta t \\\\
 &\quad + K_d \cdot \frac{e - e_{last}}{\Delta t}
 \end{aligned}
 $$
