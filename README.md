@@ -145,7 +145,3 @@
 ---
 
 准备好了吗？从 [编码器原理](01-basics/encoder.md) 开始学习吧！
-
----
-
-> **实践推荐**：理论学习后，建议通过 [PID交互仿真](https://wulica.github.io/mecanum-wheel-pid-learning-website/simulation.html ":target=_blank") 进行参数调试练习，加深对控制效果的理解。

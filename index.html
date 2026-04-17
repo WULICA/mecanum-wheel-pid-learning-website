@@ -140,6 +140,16 @@
         overlay.classList.remove('show');
       });
 
+      // 强制外部链接在新窗口打开（解决侧边栏外部链接问题）
+      document.addEventListener('click', function(e) {
+        const link = e.target.closest('a[href*="simulation.html"]');
+        if (link) {
+          e.preventDefault();
+          e.stopPropagation();
+          window.open(link.href, '_blank');
+        }
+      }, true);
+
       // 添加样式
       const style = document.createElement('style');
       style.textContent = `
