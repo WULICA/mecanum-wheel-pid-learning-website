@@ -6,6 +6,14 @@
   <title>麦氏轮PID仿真</title>
   <style>
     /* ========== 基础重置 ========== */
+    html, body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+    }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
@@ -30,7 +38,6 @@
       color: var(--text);
       line-height: 1.5;
       overflow: hidden;
-      height: 100vh;
     }
 
     /* ========== 布局 ========== */
@@ -71,6 +78,7 @@
       flex: 1;
       position: relative;
       overflow: hidden;
+      min-height: 300px;  /* 确保画布有最小高度 */
     }
 
     canvas {
@@ -111,6 +119,7 @@
     /* ========== 控制面板 ========== */
     .panel {
       width: 320px;
+      min-width: 280px;  /* 防止面板被压缩 */
       background: var(--surface);
       border-left: 1px solid var(--border);
       overflow-y: auto;
@@ -732,11 +741,14 @@
       resize() {
         const rect = this.canvas.parentElement.getBoundingClientRect();
         const dpr = window.devicePixelRatio || 1;
-        this.canvas.width = rect.width * dpr;
-        this.canvas.height = rect.height * dpr;
+        // 确保有有效尺寸，否则使用默认值
+        const width = rect.width > 0 ? rect.width : 800;
+        const height = rect.height > 0 ? rect.height : 600;
+        this.canvas.width = width * dpr;
+        this.canvas.height = height * dpr;
         this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        this.width = rect.width;
-        this.height = rect.height;
+        this.width = width;
+        this.height = height;
         // 默认：原点在画布中心
         this.offsetX = this.width / 2;
         this.offsetY = this.height / 2;
@@ -1014,126 +1026,143 @@
     //  主程序
     // ============================================================
 
-    const canvas = document.getElementById('simCanvas');
-    const sim = new Simulation();
-    const renderer = new Renderer(canvas);
-
     // FPS计算
     let frameCount = 0;
     let lastFpsTime = performance.now();
     let currentFps = 0;
 
-    // ---------- 画布点击：设定目标 ----------
-    canvas.addEventListener('click', (e) => {
-      const rect = canvas.getBoundingClientRect();
-      const sx = e.clientX - rect.left;
-      const sy = e.clientY - rect.top;
-      const world = renderer.screenToWorld(sx, sy);
-      sim.setTarget(world.x, world.y);
-    });
+    // 延迟初始化，确保DOM完全渲染
+    let canvas, sim, renderer;
+    let initialized = false;
 
-    // ---------- 窗口缩放 ----------
-    window.addEventListener('resize', () => {
-      renderer.resize();
-    });
+    function initSimulation() {
+      if (initialized) return;
+      initialized = true;
 
-    // ---------- 滚轮缩放 ----------
-    canvas.addEventListener('wheel', (e) => {
-      e.preventDefault();
-      const factor = e.deltaY > 0 ? 0.9 : 1.1;
-      renderer.scale = Math.max(20, Math.min(400, renderer.scale * factor));
-    }, { passive: false });
+      canvas = document.getElementById('simCanvas');
+      sim = new Simulation();
+      renderer = new Renderer(canvas);
 
-    // ---------- 参数绑定 ----------
-    function bindSlider(sliderId, valueId, callback) {
-      const slider = document.getElementById(sliderId);
-      const valueEl = document.getElementById(valueId);
-      slider.addEventListener('input', () => {
-        const val = parseFloat(slider.value);
-        valueEl.textContent = val.toFixed(slider.step.includes('.') ? slider.step.split('.')[1].length : 0);
-        callback(val);
+      // 确保首次resize在DOM稳定后执行
+      requestAnimationFrame(() => {
+        renderer.resize();
+        // 启动主循环
+        mainLoop();
+      });
+
+      // ---------- 画布点击：设定目标 ----------
+      canvas.addEventListener('click', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const sx = e.clientX - rect.left;
+        const sy = e.clientY - rect.top;
+        const world = renderer.screenToWorld(sx, sy);
+        sim.setTarget(world.x, world.y);
+      });
+
+      // ---------- 窗口缩放 ----------
+      window.addEventListener('resize', () => {
+        renderer.resize();
+      });
+
+      // ---------- 滚轮缩放 ----------
+      canvas.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const factor = e.deltaY > 0 ? 0.9 : 1.1;
+        renderer.scale = Math.max(20, Math.min(400, renderer.scale * factor));
+      }, { passive: false });
+
+      // ---------- 参数绑定 ----------
+      function bindSlider(sliderId, valueId, callback) {
+        const slider = document.getElementById(sliderId);
+        const valueEl = document.getElementById(valueId);
+        slider.addEventListener('input', () => {
+          const val = parseFloat(slider.value);
+          valueEl.textContent = val.toFixed(slider.step.includes('.') ? slider.step.split('.')[1].length : 0);
+          callback(val);
+        });
+      }
+
+      // 位置环PID
+      bindSlider('sKp', 'vKp', v => { sim.pidX.Kp = v; sim.pidY.Kp = v; });
+      bindSlider('sKi', 'vKi', v => { sim.pidX.Ki = v; sim.pidY.Ki = v; });
+      bindSlider('sKd', 'vKd', v => { sim.pidX.Kd = v; sim.pidY.Kd = v; });
+
+      // 旋转环PID
+      bindSlider('sKpW', 'vKpW', v => { sim.pidTheta.Kp = v; });
+      bindSlider('sKiW', 'vKiW', v => { sim.pidTheta.Ki = v; });
+      bindSlider('sKdW', 'vKdW', v => { sim.pidTheta.Kd = v; });
+
+      // 机器人参数
+      bindSlider('sR', 'vR', v => { sim.kinematics.r = v; });
+      bindSlider('sL', 'vL', v => { sim.kinematics.L = v; });
+      bindSlider('sMaxV', 'vMaxV', v => { sim.maxVelocity = v; });
+
+      // ---------- 按钮 ----------
+      document.getElementById('btnReset').addEventListener('click', () => {
+        sim.reset();
+      });
+
+      document.getElementById('btnClear').addEventListener('click', () => {
+        sim.clearTrajectory();
+      });
+
+      document.getElementById('btnPause').addEventListener('click', function() {
+        sim.paused = !sim.paused;
+        this.textContent = sim.paused ? '继续' : '暂停';
+      });
+
+      document.getElementById('btnStep').addEventListener('click', () => {
+        if (sim.paused) {
+          sim.paused = false;
+          sim.step();
+          sim.paused = true;
+        }
+      });
+
+      // ---------- 键盘快捷键 ----------
+      document.addEventListener('keydown', (e) => {
+        const step = 0.5; // 每次移动0.5m
+        switch (e.key) {
+          case ' ':
+            e.preventDefault();
+            sim.paused = !sim.paused;
+            document.getElementById('btnPause').textContent = sim.paused ? '继续' : '暂停';
+            break;
+          case 'r':
+          case 'R':
+            sim.reset();
+            break;
+          case 'c':
+          case 'C':
+            sim.clearTrajectory();
+            break;
+          case 'w':
+          case 'W':
+            sim.setTarget(sim.robot.x + step * Math.cos(sim.robot.theta),
+                          sim.robot.y + step * Math.sin(sim.robot.theta));
+            break;
+          case 's':
+          case 'S':
+            sim.setTarget(sim.robot.x - step * Math.cos(sim.robot.theta),
+                          sim.robot.y - step * Math.sin(sim.robot.theta));
+            break;
+          case 'a':
+          case 'A':
+            sim.setTarget(sim.robot.x - step * Math.sin(sim.robot.theta),
+                          sim.robot.y + step * Math.cos(sim.robot.theta));
+            break;
+          case 'd':
+          case 'D':
+            sim.setTarget(sim.robot.x + step * Math.sin(sim.robot.theta),
+                          sim.robot.y - step * Math.cos(sim.robot.theta));
+            break;
+        }
       });
     }
 
-    // 位置环PID
-    bindSlider('sKp', 'vKp', v => { sim.pidX.Kp = v; sim.pidY.Kp = v; });
-    bindSlider('sKi', 'vKi', v => { sim.pidX.Ki = v; sim.pidY.Ki = v; });
-    bindSlider('sKd', 'vKd', v => { sim.pidX.Kd = v; sim.pidY.Kd = v; });
-
-    // 旋转环PID
-    bindSlider('sKpW', 'vKpW', v => { sim.pidTheta.Kp = v; });
-    bindSlider('sKiW', 'vKiW', v => { sim.pidTheta.Ki = v; });
-    bindSlider('sKdW', 'vKdW', v => { sim.pidTheta.Kd = v; });
-
-    // 机器人参数
-    bindSlider('sR', 'vR', v => { sim.kinematics.r = v; });
-    bindSlider('sL', 'vL', v => { sim.kinematics.L = v; });
-    bindSlider('sMaxV', 'vMaxV', v => { sim.maxVelocity = v; });
-
-    // ---------- 按钮 ----------
-    document.getElementById('btnReset').addEventListener('click', () => {
-      sim.reset();
-    });
-
-    document.getElementById('btnClear').addEventListener('click', () => {
-      sim.clearTrajectory();
-    });
-
-    document.getElementById('btnPause').addEventListener('click', function() {
-      sim.paused = !sim.paused;
-      this.textContent = sim.paused ? '继续' : '暂停';
-    });
-
-    document.getElementById('btnStep').addEventListener('click', () => {
-      if (sim.paused) {
-        sim.paused = false;
-        sim.step();
-        sim.paused = true;
-      }
-    });
-
-    // ---------- 键盘快捷键 ----------
-    document.addEventListener('keydown', (e) => {
-      const step = 0.5; // 每次移动0.5m
-      switch (e.key) {
-        case ' ':
-          e.preventDefault();
-          sim.paused = !sim.paused;
-          document.getElementById('btnPause').textContent = sim.paused ? '继续' : '暂停';
-          break;
-        case 'r':
-        case 'R':
-          sim.reset();
-          break;
-        case 'c':
-        case 'C':
-          sim.clearTrajectory();
-          break;
-        case 'w':
-        case 'W':
-          sim.setTarget(sim.robot.x + step * Math.cos(sim.robot.theta),
-                        sim.robot.y + step * Math.sin(sim.robot.theta));
-          break;
-        case 's':
-        case 'S':
-          sim.setTarget(sim.robot.x - step * Math.cos(sim.robot.theta),
-                        sim.robot.y - step * Math.sin(sim.robot.theta));
-          break;
-        case 'a':
-        case 'A':
-          sim.setTarget(sim.robot.x - step * Math.sin(sim.robot.theta),
-                        sim.robot.y + step * Math.cos(sim.robot.theta));
-          break;
-        case 'd':
-        case 'D':
-          sim.setTarget(sim.robot.x + step * Math.sin(sim.robot.theta),
-                        sim.robot.y - step * Math.cos(sim.robot.theta));
-          break;
-      }
-    });
-
     // ---------- UI更新 ----------
     function updateUI() {
+      if (!sim) return;
       const r = sim.robot;
       const rpm = r.wheelRPM;
 
@@ -1174,13 +1203,13 @@
     // ---------- 主循环 ----------
     function mainLoop() {
       // 仿真步进
-      sim.step();
+      if (sim) sim.step();
 
       // 相机跟随
-      renderer.followRobot(sim.robot);
+      if (renderer && sim) renderer.followRobot(sim.robot);
 
       // 渲染
-      renderer.render(sim);
+      if (renderer && sim) renderer.render(sim);
 
       // UI更新
       updateUI();
@@ -1197,8 +1226,13 @@
       requestAnimationFrame(mainLoop);
     }
 
-    // 启动
-    requestAnimationFrame(mainLoop);
+    // DOM加载完成后初始化
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initSimulation);
+    } else {
+      // DOM已加载，立即初始化
+      initSimulation();
+    }
   </script>
 </body>
 </html>
