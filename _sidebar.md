@@ -36,4 +36,4 @@
   * [常见问题FAQ](05-practice/faq.md)
 
 * **六、在线仿真**
-  * [PID交互仿真](simulation.html)
+  * [PID交互仿真](simulation.html ":target=_blank")
