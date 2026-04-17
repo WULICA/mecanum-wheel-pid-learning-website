@@ -34,3 +34,6 @@
   * [完整代码实现](05-practice/full-code.md)
   * [调试方法](05-practice/debugging.md)
   * [常见问题FAQ](05-practice/faq.md)
+
+* **六、在线仿真**
+  * [PID交互仿真](simulation.html)

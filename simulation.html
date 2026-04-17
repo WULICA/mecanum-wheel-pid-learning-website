@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>麦氏轮PID仿真</title>
+  <style>
+    /* ========== 基础重置 ========== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f8f9fa;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --text: #1e293b;
+      --text-2: #475569;
+      --text-3: #94a3b8;
+      --primary: #2563eb;
+      --primary-light: #dbeafe;
+      --accent: #f59e0b;
+      --success: #10b981;
+      --danger: #ef4444;
+      --radius: 8px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    /* ========== 布局 ========== */
+    .app {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* ========== 画布区域 ========== */
+    .canvas-area {
+      flex: 1;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .canvas-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .canvas-header h1 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .canvas-header .hint {
+      font-size: 13px;
+      color: var(--text-3);
+    }
+
+    .canvas-wrapper {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: crosshair;
+    }
+
+    /* ========== 状态栏 ========== */
+    .status-bar {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 8px 20px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--text-2);
+      font-family: "JetBrains Mono", "Fira Code", monospace;
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .status-label {
+      color: var(--text-3);
+    }
+
+    .status-value {
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    /* ========== 控制面板 ========== */
+    .panel {
+      width: 320px;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-section {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .panel-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ========== 参数滑块 ========== */
+    .param-group {
+      margin-bottom: 12px;
+    }
+
+    .param-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .param-label {
+      font-size: 13px;
+      color: var(--text-2);
+    }
+
+    .param-value {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--primary);
+      font-family: "JetBrains Mono", monospace;
+      min-width: 60px;
+      text-align: right;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      background: var(--primary);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    /* ========== 按钮 ========== */
+    .btn-group {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--text-2);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+    }
+
+    .btn:hover {
+      background: var(--bg);
+      border-color: var(--text-3);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+
+    .btn-danger {
+      color: var(--danger);
+      border-color: var(--danger);
+    }
+
+    .btn-danger:hover {
+      background: #fef2f2;
+    }
+
+    /* ========== 轮速指示器 ========== */
+    .wheel-indicators {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .wheel-item {
+      padding: 8px 10px;
+      background: var(--bg);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+
+    .wheel-name {
+      font-size: 11px;
+      color: var(--text-3);
+      margin-bottom: 2px;
+    }
+
+    .wheel-rpm {
+      font-size: 14px;
+      font-weight: 600;
+      font-family: "JetBrains Mono", monospace;
+    }
+
+    .wheel-rpm.positive { color: var(--success); }
+    .wheel-rpm.negative { color: var(--danger); }
+    .wheel-rpm.zero { color: var(--text-3); }
+
+    /* ========== 机器人状态 ========== */
+    .robot-state {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+
+    .state-item {
+      text-align: center;
+      padding: 8px;
+      background: var(--bg);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+
+    .state-label {
+      font-size: 11px;
+      color: var(--text-3);
+      margin-bottom: 2px;
+    }
+
+    .state-value {
+      font-size: 15px;
+      font-weight: 600;
+      font-family: "JetBrains Mono", monospace;
+      color: var(--text);
+    }
+
+    /* ========== 图例 ========== */
+    .legend {
+      display: flex;
+      gap: 16px;
+      font-size: 12px;
+      color: var(--text-2);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    /* ========== 响应式 ========== */
+    @media (max-width: 768px) {
+      .app {
+        flex-direction: column;
+      }
+      .panel {
+        width: 100%;
+        max-height: 40vh;
+        border-left: none;
+        border-top: 1px solid var(--border);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- 画布区域 -->
+    <div class="canvas-area">
+      <div class="canvas-header">
+        <h1>麦氏轮PID仿真</h1>
+        <div class="legend">
+          <span class="legend-item"><span class="legend-dot" style="background:#2563eb"></span>轨迹</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span>目标</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#10b981"></span>机器人</span>
+        </div>
+        <span class="hint">点击画布设定目标 | WASD移动 | 空格暂停 | 滚轮缩放</span>
+      </div>
+      <div class="canvas-wrapper">
+        <canvas id="simCanvas"></canvas>
+      </div>
+      <div class="status-bar">
+        <span class="status-item"><span class="status-label">X:</span><span class="status-value" id="stX">0.00</span></span>
+        <span class="status-item"><span class="status-label">Y:</span><span class="status-value" id="stY">0.00</span></span>
+        <span class="status-item"><span class="status-label">θ:</span><span class="status-value" id="stTheta">0.0°</span></span>
+        <span class="status-item"><span class="status-label">Vx:</span><span class="status-value" id="stVx">0.00</span></span>
+        <span class="status-item"><span class="status-label">Vy:</span><span class="status-value" id="stVy">0.00</span></span>
+        <span class="status-item"><span class="status-label">ω:</span><span class="status-value" id="stOmega">0.00</span></span>
+        <span class="status-item"><span class="status-label">距离:</span><span class="status-value" id="stDist">--</span></span>
+        <span class="status-item"><span class="status-label">FPS:</span><span class="status-value" id="stFps">0</span></span>
+      </div>
+    </div>
+
+    <!-- 控制面板 -->
+    <div class="panel">
+      <!-- 机器人状态 -->
+      <div class="panel-section">
+        <div class="panel-title">机器人状态</div>
+        <div class="robot-state">
+          <div class="state-item">
+            <div class="state-label">X (m)</div>
+            <div class="state-value" id="pX">0.00</div>
+          </div>
+          <div class="state-item">
+            <div class="state-label">Y (m)</div>
+            <div class="state-value" id="pY">0.00</div>
+          </div>
+          <div class="state-item">
+            <div class="state-label">θ (°)</div>
+            <div class="state-value" id="pTheta">0.0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 四轮转速 -->
+      <div class="panel-section">
+        <div class="panel-title">四轮转速 (RPM)</div>
+        <div class="wheel-indicators">
+          <div class="wheel-item">
+            <div class="wheel-name">左前 (FL)</div>
+            <div class="wheel-rpm zero" id="wFL">0</div>
+          </div>
+          <div class="wheel-item">
+            <div class="wheel-name">右前 (FR)</div>
+            <div class="wheel-rpm zero" id="wFR">0</div>
+          </div>
+          <div class="wheel-item">
+            <div class="wheel-name">左后 (RL)</div>
+            <div class="wheel-rpm zero" id="wRL">0</div>
+          </div>
+          <div class="wheel-item">
+            <div class="wheel-name">右后 (RR)</div>
+            <div class="wheel-rpm zero" id="wRR">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PID参数 -->
+      <div class="panel-section">
+        <div class="panel-title">位置环 PID</div>
+        <div class="param-group">
+          <div class="param-header">
+            <span class="param-label">Kp</span>
+            <span class="param-value" id="vKp">2.0</span>
+          </div>
+          <input type="range" id="sKp" min="0" max="8" step="0.1" value="2.0">
+        </div>
+        <div class="param-group">
+          <div class="param-header">
+            <span class="param-label">Ki</span>
+            <span class="param-value" id="vKi">0.0</span>
+          </div>
+          <input type="range" id="sKi" min="0" max="2" step="0.01" value="0.0">
+        </div>
+        <div class="param-group">
+          <div class="param-header">
+            <span class="param-label">Kd</span>
+            <span class="param-value" id="vKd">0.3</span>
+          </div>
+          <input type="range" id="sKd" min="0" max="2" step="0.01" value="0.3">
+        </div>
+      </div>
+
+      <!-- 旋转PID参数 -->
+      <div class="panel-section">
+        <div class="panel-title">旋转环 PID</div>
+        <div class="param-group">
+          <div class="param-header">
+            <span class="param-label">Kp_ω</span>
+            <span class="param-value" id="vKpW">3.0</span>
+          </div>
+          <input type="range" id="sKpW" min="0" max="10" step="0.1" value="3.0">
+        </div>
+        <div class="param-group">
+          <div class="param-header">
+            <span class="param-label">Ki_ω</span>
+            <span class="param-value" id="vKiW">0.0</span>
+          </div>
+          <input type="range" id="sKiW" min="0" max="2" step="0.01" value="0.0">
+        </div>
+        <div class="param-group">
+          <div class="param-header">
+            <span class="param-label">Kd_ω</span>
+            <span class="param-value" id="vKdW">0.2</span>
+          </div>
+          <input type="range" id="sKdW" min="0" max="2" step="0.01" value="0.2">
+        </div>
+      </div>
+
+      <!-- 机器人参数 -->
+      <div class="panel-section">
+        <div class="panel-title">机器人参数</div>
+        <div class="param-group">
+          <div class="param-header">
+            <span class="param-label">轮半径 r (m)</span>
+            <span class="param-value" id="vR">0.05</span>
+          </div>
+          <input type="range" id="sR" min="0.02" max="0.10" step="0.005" value="0.05">
+        </div>
+        <div class="param-group">
+          <div class="param-header">
+            <span class="param-label">轮距 L (m)</span>
+            <span class="param-value" id="vL">0.30</span>
+          </div>
+          <input type="range" id="sL" min="0.15" max="0.60" step="0.01" value="0.30">
+        </div>
+        <div class="param-group">
+          <div class="param-header">
+            <span class="param-label">最大速度 (m/s)</span>
+            <span class="param-value" id="vMaxV">1.0</span>
+          </div>
+          <input type="range" id="sMaxV" min="0.2" max="3.0" step="0.1" value="1.0">
+        </div>
+      </div>
+
+      <!-- 操作按钮 -->
+      <div class="panel-section">
+        <div class="panel-title">操作</div>
+        <div class="btn-group">
+          <button class="btn btn-primary" id="btnReset">重置位置</button>
+          <button class="btn btn-danger" id="btnClear">清除轨迹</button>
+        </div>
+        <div class="btn-group" style="margin-top:8px">
+          <button class="btn" id="btnPause">暂停</button>
+          <button class="btn" id="btnStep">单步</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ============================================================
+    //  麦氏轮PID仿真 - 核心逻辑
+    // ============================================================
+
+    // ---------- PID 控制器 ----------
+    class PID {
+      constructor(Kp, Ki, Kd) {
+        this.Kp = Kp;
+        this.Ki = Ki;
+        this.Kd = Kd;
+        this.integral = 0;
+        this.lastError = 0;
+        this.output = 0;
+      }
+
+      update(error, dt) {
+        this.integral += error * dt;
+        // 积分限幅
+        this.integral = Math.max(-10, Math.min(10, this.integral));
+        const derivative = (error - this.lastError) / dt;
+        this.output = this.Kp * error + this.Ki * this.integral + this.Kd * derivative;
+        this.lastError = error;
+        return this.output;
+      }
+
+      reset() {
+        this.integral = 0;
+        this.lastError = 0;
+        this.output = 0;
+      }
+    }
+
+    // ---------- 麦氏轮运动学 ----------
+    class MecanumKinematics {
+      constructor(wheelRadius, wheelBase) {
+        this.r = wheelRadius;   // 轮子半径
+        this.L = wheelBase;     // L = lx + ly
+      }
+
+      // 正向运动学：机器人速度 → 四轮线速度
+      forward(Vx, Vy, omega) {
+        return [
+          (Vx - Vy - omega * this.L) / this.r,
+          (Vx + Vy + omega * this.L) / this.r,
+          (Vx + Vy - omega * this.L) / this.r,
+          (Vx - Vy + omega * this.L) / this.r
+        ];
+      }
+
+      // 逆向运动学：四轮线速度 → 机器人速度
+      inverse(w1, w2, w3, w4) {
+        const r4 = this.r / 4;
+        return {
+          Vx: r4 * (w1 + w2 + w3 + w4),
+          Vy: r4 * (-w1 + w2 + w3 - w4),
+          omega: r4 / this.L * (-w1 + w2 - w3 + w4)
+        };
+      }
+
+      // 线速度 → RPM
+      velocityToRPM(v) {
+        return v * 60 / (2 * Math.PI * this.r);
+      }
+    }
+
+    // ---------- 机器人状态 ----------
+    class Robot {
+      constructor() {
+        this.x = 0;       // 世界坐标 X (m)
+        this.y = 0;       // 世界坐标 Y (m)
+        this.theta = 0;   // 朝向角 (rad)
+        this.Vx = 0;      // 机器人坐标系前进速度
+        this.Vy = 0;      // 机器人坐标系平移速度
+        this.omega = 0;   // 旋转角速度
+        this.wheelRPM = [0, 0, 0, 0]; // 四轮RPM
+        this.wheelVel = [0, 0, 0, 0]; // 四轮线速度
+      }
+
+      reset() {
+        this.x = 0;
+        this.y = 0;
+        this.theta = 0;
+        this.Vx = 0;
+        this.Vy = 0;
+        this.omega = 0;
+        this.wheelRPM = [0, 0, 0, 0];
+        this.wheelVel = [0, 0, 0, 0];
+      }
+
+      // 更新位姿（欧拉积分）
+      updatePose(dt) {
+        // 机器人坐标系 → 世界坐标系
+        const cosT = Math.cos(this.theta);
+        const sinT = Math.sin(this.theta);
+        const worldVx = this.Vx * cosT - this.Vy * sinT;
+        const worldVy = this.Vx * sinT + this.Vy * cosT;
+
+        this.x += worldVx * dt;
+        this.y += worldVy * dt;
+        this.theta += this.omega * dt;
+
+        // 归一化角度到 [-π, π]
+        while (this.theta > Math.PI) this.theta -= 2 * Math.PI;
+        while (this.theta < -Math.PI) this.theta += 2 * Math.PI;
+      }
+    }
+
+    // ---------- 仿真系统 ----------
+    class Simulation {
+      constructor() {
+        this.robot = new Robot();
+        this.kinematics = new MecanumKinematics(0.05, 0.30);
+
+        // 位置环PID（控制Vx和Vy）
+        this.pidX = new PID(2.0, 0.0, 0.3);
+        this.pidY = new PID(2.0, 0.0, 0.3);
+        // 旋转环PID（控制omega）
+        this.pidTheta = new PID(3.0, 0.0, 0.2);
+
+        this.targetX = null;
+        this.targetY = null;
+        this.targetTheta = null;
+
+        this.maxVelocity = 1.0;  // 最大速度 m/s
+        this.maxOmega = 3.0;     // 最大角速度 rad/s
+
+        this.trajectory = [];     // 轨迹点
+        this.maxTrajectory = 2000;
+
+        this.paused = false;
+        this.dt = 1 / 60;        // 仿真步长
+      }
+
+      setTarget(worldX, worldY) {
+        this.targetX = worldX;
+        this.targetY = worldY;
+        // 计算目标朝向：指向目标点
+        this.targetTheta = Math.atan2(worldY - this.robot.y, worldX - this.robot.x);
+        // 重置PID
+        this.pidX.reset();
+        this.pidY.reset();
+        this.pidTheta.reset();
+      }
+
+      step() {
+        if (this.paused) return;
+        if (this.targetX === null) return;
+
+        const dt = this.dt;
+        const r = this.robot;
+
+        // ---------- 计算误差（世界坐标系） ----------
+        const errorWorldX = this.targetX - r.x;
+        const errorWorldY = this.targetY - r.y;
+
+        // 距离判断：到达目标附近则停止
+        const dist = Math.sqrt(errorWorldX * errorWorldX + errorWorldY * errorWorldY);
+        if (dist < 0.01) {
+          r.Vx = 0;
+          r.Vy = 0;
+          r.omega = 0;
+          r.wheelRPM = [0, 0, 0, 0];
+          r.wheelVel = [0, 0, 0, 0];
+          return;
+        }
+
+        // ---------- 世界坐标系误差 → 机器人坐标系 ----------
+        const cosT = Math.cos(r.theta);
+        const sinT = Math.sin(r.theta);
+        const errorLocalX = errorWorldX * cosT + errorWorldY * sinT;
+        const errorLocalY = -errorWorldX * sinT + errorWorldY * cosT;
+
+        // ---------- PID计算 ----------
+        const cmdVx = this.pidX.update(errorLocalX, dt);
+        const cmdVy = this.pidY.update(errorLocalY, dt);
+
+        // 旋转控制：朝向目标方向
+        let errorTheta = this.targetTheta - r.theta;
+        while (errorTheta > Math.PI) errorTheta -= 2 * Math.PI;
+        while (errorTheta < -Math.PI) errorTheta += 2 * Math.PI;
+        // 接近目标时减小旋转控制，避免在目标附近震荡
+        const thetaGain = Math.min(1.0, dist / 0.3);
+        const cmdOmega = this.pidTheta.update(errorTheta * thetaGain, dt);
+
+        // ---------- 速度限幅 ----------
+        let Vx = Math.max(-this.maxVelocity, Math.min(this.maxVelocity, cmdVx));
+        let Vy = Math.max(-this.maxVelocity, Math.min(this.maxVelocity, cmdVy));
+        let omega = Math.max(-this.maxOmega, Math.min(this.maxOmega, cmdOmega));
+
+        // 速度缩放：确保合速度不超过最大值
+        const totalV = Math.sqrt(Vx * Vx + Vy * Vy);
+        if (totalV > this.maxVelocity) {
+          const scale = this.maxVelocity / totalV;
+          Vx *= scale;
+          Vy *= scale;
+        }
+
+        // ---------- 更新机器人 ----------
+        r.Vx = Vx;
+        r.Vy = Vy;
+        r.omega = omega;
+
+        // 正向运动学 → 四轮线速度
+        r.wheelVel = this.kinematics.forward(Vx, Vy, omega);
+        r.wheelRPM = r.wheelVel.map(v => this.kinematics.velocityToRPM(v));
+
+        // 更新位姿
+        r.updatePose(dt);
+
+        // 记录轨迹
+        this.trajectory.push({ x: r.x, y: r.y });
+        if (this.trajectory.length > this.maxTrajectory) {
+          this.trajectory.shift();
+        }
+      }
+
+      reset() {
+        this.robot.reset();
+        this.trajectory = [];
+        this.targetX = null;
+        this.targetY = null;
+        this.targetTheta = null;
+        this.pidX.reset();
+        this.pidY.reset();
+        this.pidTheta.reset();
+      }
+
+      clearTrajectory() {
+        this.trajectory = [];
+      }
+    }
+
+    // ============================================================
+    //  渲染器
+    // ============================================================
+
+    class Renderer {
+      constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext('2d');
+        this.scale = 100;  // 像素/米
+        this.offsetX = 0;
+        this.offsetY = 0;
+        this.resize();
+      }
+
+      resize() {
+        const rect = this.canvas.parentElement.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        this.canvas.width = rect.width * dpr;
+        this.canvas.height = rect.height * dpr;
+        this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        this.width = rect.width;
+        this.height = rect.height;
+        // 默认：原点在画布中心
+        this.offsetX = this.width / 2;
+        this.offsetY = this.height / 2;
+      }
+
+      // 世界坐标 → 屏幕坐标
+      worldToScreen(wx, wy) {
+        return {
+          x: this.offsetX + wx * this.scale,
+          y: this.offsetY - wy * this.scale  // Y轴翻转
+        };
+      }
+
+      // 屏幕坐标 → 世界坐标
+      screenToWorld(sx, sy) {
+        return {
+          x: (sx - this.offsetX) / this.scale,
+          y: -(sy - this.offsetY) / this.scale
+        };
+      }
+
+      // 跟随机器人，保持机器人在画布中心
+      followRobot(robot) {
+        const target = this.worldToScreen(robot.x, robot.y);
+        this.offsetX += (this.width / 2 - target.x) * 0.05;
+        this.offsetY += (this.height / 2 - target.y) * 0.05;
+      }
+
+      render(sim) {
+        const ctx = this.ctx;
+        const w = this.width;
+        const h = this.height;
+
+        // 清除
+        ctx.clearRect(0, 0, w, h);
+
+        // 背景
+        ctx.fillStyle = '#fafbfc';
+        ctx.fillRect(0, 0, w, h);
+
+        // 网格
+        this.drawGrid();
+
+        // 轨迹
+        this.drawTrajectory(sim.trajectory);
+
+        // 目标点
+        if (sim.targetX !== null) {
+          this._robotX = sim.robot.x;
+          this._robotY = sim.robot.y;
+          this.drawTarget(sim.targetX, sim.targetY);
+        }
+
+        // 机器人
+        this.drawRobot(sim.robot, sim.kinematics);
+      }
+
+      drawGrid() {
+        const ctx = this.ctx;
+        const s = this.scale;
+
+        // 计算网格间距
+        let gridStep = 0.5; // 0.5米
+        if (s < 50) gridStep = 2;
+        else if (s < 100) gridStep = 1;
+
+        const gridPx = gridStep * s;
+
+        // 绘制网格线
+        ctx.strokeStyle = '#e8ecf0';
+        ctx.lineWidth = 0.5;
+
+        const startX = this.offsetX % gridPx;
+        const startY = this.offsetY % gridPx;
+
+        for (let x = startX; x < this.width; x += gridPx) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, this.height);
+          ctx.stroke();
+        }
+        for (let y = startY; y < this.height; y += gridPx) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(this.width, y);
+          ctx.stroke();
+        }
+
+        // 坐标轴
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 1;
+
+        // X轴
+        ctx.beginPath();
+        ctx.moveTo(0, this.offsetY);
+        ctx.lineTo(this.width, this.offsetY);
+        ctx.stroke();
+
+        // Y轴
+        ctx.beginPath();
+        ctx.moveTo(this.offsetX, 0);
+        ctx.lineTo(this.offsetX, this.height);
+        ctx.stroke();
+
+        // 原点标记
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '11px sans-serif';
+        ctx.fillText('O', this.offsetX + 4, this.offsetY - 4);
+      }
+
+      drawTrajectory(trajectory) {
+        if (trajectory.length < 2) return;
+        const ctx = this.ctx;
+
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        for (let i = 1; i < trajectory.length; i++) {
+          const alpha = Math.max(0.1, i / trajectory.length);
+          ctx.strokeStyle = `rgba(37, 99, 235, ${alpha * 0.7})`;
+
+          const p0 = this.worldToScreen(trajectory[i - 1].x, trajectory[i - 1].y);
+          const p1 = this.worldToScreen(trajectory[i].x, trajectory[i].y);
+
+          ctx.beginPath();
+          ctx.moveTo(p0.x, p0.y);
+          ctx.lineTo(p1.x, p1.y);
+          ctx.stroke();
+        }
+      }
+
+      drawTarget(tx, ty) {
+        const ctx = this.ctx;
+        const p = this.worldToScreen(tx, ty);
+
+        // 从机器人到目标的虚线
+        const rp = this.worldToScreen(this._robotX || 0, this._robotY || 0);
+        ctx.setLineDash([6, 4]);
+        ctx.strokeStyle = 'rgba(245, 158, 11, 0.3)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(rp.x, rp.y);
+        ctx.lineTo(p.x, p.y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // 外圈脉冲
+        const pulse = 0.5 + 0.5 * Math.sin(Date.now() / 300);
+        const outerR = 12 + pulse * 4;
+
+        ctx.strokeStyle = `rgba(245, 158, 11, ${0.3 + pulse * 0.2})`;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, outerR, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // 内圈
+        ctx.fillStyle = '#f59e0b';
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 十字
+        ctx.strokeStyle = '#f59e0b';
+        ctx.lineWidth = 1.5;
+        const crossSize = 8;
+        ctx.beginPath();
+        ctx.moveTo(p.x - crossSize, p.y);
+        ctx.lineTo(p.x + crossSize, p.y);
+        ctx.moveTo(p.x, p.y - crossSize);
+        ctx.lineTo(p.x, p.y + crossSize);
+        ctx.stroke();
+      }
+
+      drawRobot(robot, kinematics) {
+        const ctx = this.ctx;
+        const p = this.worldToScreen(robot.x, robot.y);
+        const theta = -robot.theta; // 屏幕坐标系Y翻转
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(theta);
+
+        // 机器人尺寸（屏幕像素）
+        const bodyW = kinematics.L * this.scale * 0.8;
+        const bodyH = kinematics.L * this.scale * 0.8;
+        const halfW = bodyW / 2;
+        const halfH = bodyH / 2;
+
+        // 车体
+        ctx.fillStyle = '#10b981';
+        ctx.strokeStyle = '#059669';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        // 兼容性：roundRect可能不存在
+        if (ctx.roundRect) {
+          ctx.roundRect(-halfW, -halfH, bodyW, bodyH, 4);
+        } else {
+          ctx.rect(-halfW, -halfH, bodyW, bodyH);
+        }
+        ctx.fill();
+        ctx.stroke();
+
+        // 方向指示（前方三角形）
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.moveTo(halfW - 2, 0);
+        ctx.lineTo(halfW - 10, -6);
+        ctx.lineTo(halfW - 10, 6);
+        ctx.closePath();
+        ctx.fill();
+
+        // 四个轮子
+        const wheelW = 6;
+        const wheelH = 14;
+        const wheelPositions = [
+          { x: -halfW - 2, y: -halfH + 2, angle: Math.PI / 4 },   // FL
+          { x: halfW + 2, y: -halfH + 2, angle: -Math.PI / 4 },   // FR
+          { x: -halfW - 2, y: halfH - 2, angle: -Math.PI / 4 },   // RL
+          { x: halfW + 2, y: halfH - 2, angle: Math.PI / 4 },     // RR
+        ];
+
+        const rpm = robot.wheelRPM;
+        const maxRPM = Math.max(1, ...rpm.map(Math.abs));
+
+        wheelPositions.forEach((wp, i) => {
+          ctx.save();
+          ctx.translate(wp.x, wp.y);
+          ctx.rotate(wp.angle);
+
+          // 轮子颜色根据转速
+          const ratio = rpm[i] / maxRPM;
+          if (rpm[i] > 0.5) {
+            ctx.fillStyle = `rgba(16, 185, 129, ${0.5 + Math.abs(ratio) * 0.5})`;
+          } else if (rpm[i] < -0.5) {
+            ctx.fillStyle = `rgba(239, 68, 68, ${0.5 + Math.abs(ratio) * 0.5})`;
+          } else {
+            ctx.fillStyle = '#94a3b8';
+          }
+
+          ctx.fillRect(-wheelW / 2, -wheelH / 2, wheelW, wheelH);
+          ctx.restore();
+        });
+
+        // 速度向量
+        if (Math.abs(robot.Vx) > 0.01 || Math.abs(robot.Vy) > 0.01) {
+          const vScale = 30; // 速度向量缩放
+          const vx = robot.Vx * vScale;
+          const vy = -robot.Vy * vScale; // Y翻转
+
+          ctx.strokeStyle = 'rgba(37, 99, 235, 0.8)';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(vx, vy);
+          ctx.stroke();
+
+          // 箭头
+          const angle = Math.atan2(vy, vx);
+          ctx.fillStyle = 'rgba(37, 99, 235, 0.8)';
+          ctx.beginPath();
+          ctx.moveTo(vx, vy);
+          ctx.lineTo(vx - 6 * Math.cos(angle - 0.4), vy - 6 * Math.sin(angle - 0.4));
+          ctx.lineTo(vx - 6 * Math.cos(angle + 0.4), vy - 6 * Math.sin(angle + 0.4));
+          ctx.closePath();
+          ctx.fill();
+        }
+
+        ctx.restore();
+      }
+    }
+
+    // ============================================================
+    //  主程序
+    // ============================================================
+
+    const canvas = document.getElementById('simCanvas');
+    const sim = new Simulation();
+    const renderer = new Renderer(canvas);
+
+    // FPS计算
+    let frameCount = 0;
+    let lastFpsTime = performance.now();
+    let currentFps = 0;
+
+    // ---------- 画布点击：设定目标 ----------
+    canvas.addEventListener('click', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const sx = e.clientX - rect.left;
+      const sy = e.clientY - rect.top;
+      const world = renderer.screenToWorld(sx, sy);
+      sim.setTarget(world.x, world.y);
+    });
+
+    // ---------- 窗口缩放 ----------
+    window.addEventListener('resize', () => {
+      renderer.resize();
+    });
+
+    // ---------- 滚轮缩放 ----------
+    canvas.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const factor = e.deltaY > 0 ? 0.9 : 1.1;
+      renderer.scale = Math.max(20, Math.min(400, renderer.scale * factor));
+    }, { passive: false });
+
+    // ---------- 参数绑定 ----------
+    function bindSlider(sliderId, valueId, callback) {
+      const slider = document.getElementById(sliderId);
+      const valueEl = document.getElementById(valueId);
+      slider.addEventListener('input', () => {
+        const val = parseFloat(slider.value);
+        valueEl.textContent = val.toFixed(slider.step.includes('.') ? slider.step.split('.')[1].length : 0);
+        callback(val);
+      });
+    }
+
+    // 位置环PID
+    bindSlider('sKp', 'vKp', v => { sim.pidX.Kp = v; sim.pidY.Kp = v; });
+    bindSlider('sKi', 'vKi', v => { sim.pidX.Ki = v; sim.pidY.Ki = v; });
+    bindSlider('sKd', 'vKd', v => { sim.pidX.Kd = v; sim.pidY.Kd = v; });
+
+    // 旋转环PID
+    bindSlider('sKpW', 'vKpW', v => { sim.pidTheta.Kp = v; });
+    bindSlider('sKiW', 'vKiW', v => { sim.pidTheta.Ki = v; });
+    bindSlider('sKdW', 'vKdW', v => { sim.pidTheta.Kd = v; });
+
+    // 机器人参数
+    bindSlider('sR', 'vR', v => { sim.kinematics.r = v; });
+    bindSlider('sL', 'vL', v => { sim.kinematics.L = v; });
+    bindSlider('sMaxV', 'vMaxV', v => { sim.maxVelocity = v; });
+
+    // ---------- 按钮 ----------
+    document.getElementById('btnReset').addEventListener('click', () => {
+      sim.reset();
+    });
+
+    document.getElementById('btnClear').addEventListener('click', () => {
+      sim.clearTrajectory();
+    });
+
+    document.getElementById('btnPause').addEventListener('click', function() {
+      sim.paused = !sim.paused;
+      this.textContent = sim.paused ? '继续' : '暂停';
+    });
+
+    document.getElementById('btnStep').addEventListener('click', () => {
+      if (sim.paused) {
+        sim.paused = false;
+        sim.step();
+        sim.paused = true;
+      }
+    });
+
+    // ---------- 键盘快捷键 ----------
+    document.addEventListener('keydown', (e) => {
+      const step = 0.5; // 每次移动0.5m
+      switch (e.key) {
+        case ' ':
+          e.preventDefault();
+          sim.paused = !sim.paused;
+          document.getElementById('btnPause').textContent = sim.paused ? '继续' : '暂停';
+          break;
+        case 'r':
+        case 'R':
+          sim.reset();
+          break;
+        case 'c':
+        case 'C':
+          sim.clearTrajectory();
+          break;
+        case 'w':
+        case 'W':
+          sim.setTarget(sim.robot.x + step * Math.cos(sim.robot.theta),
+                        sim.robot.y + step * Math.sin(sim.robot.theta));
+          break;
+        case 's':
+        case 'S':
+          sim.setTarget(sim.robot.x - step * Math.cos(sim.robot.theta),
+                        sim.robot.y - step * Math.sin(sim.robot.theta));
+          break;
+        case 'a':
+        case 'A':
+          sim.setTarget(sim.robot.x - step * Math.sin(sim.robot.theta),
+                        sim.robot.y + step * Math.cos(sim.robot.theta));
+          break;
+        case 'd':
+        case 'D':
+          sim.setTarget(sim.robot.x + step * Math.sin(sim.robot.theta),
+                        sim.robot.y - step * Math.cos(sim.robot.theta));
+          break;
+      }
+    });
+
+    // ---------- UI更新 ----------
+    function updateUI() {
+      const r = sim.robot;
+      const rpm = r.wheelRPM;
+
+      // 状态栏
+      document.getElementById('stX').textContent = r.x.toFixed(2);
+      document.getElementById('stY').textContent = r.y.toFixed(2);
+      document.getElementById('stTheta').textContent = (r.theta * 180 / Math.PI).toFixed(1) + '°';
+      document.getElementById('stVx').textContent = r.Vx.toFixed(2);
+      document.getElementById('stVy').textContent = r.Vy.toFixed(2);
+      document.getElementById('stOmega').textContent = r.omega.toFixed(2);
+      document.getElementById('stFps').textContent = currentFps;
+
+      // 距离
+      if (sim.targetX !== null) {
+        const dx = sim.targetX - r.x;
+        const dy = sim.targetY - r.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        document.getElementById('stDist').textContent = dist.toFixed(3) + 'm';
+      } else {
+        document.getElementById('stDist').textContent = '--';
+      }
+
+      // 面板：机器人状态
+      document.getElementById('pX').textContent = r.x.toFixed(2);
+      document.getElementById('pY').textContent = r.y.toFixed(2);
+      document.getElementById('pTheta').textContent = (r.theta * 180 / Math.PI).toFixed(1);
+
+      // 面板：四轮转速
+      const wheelEls = ['wFL', 'wFR', 'wRL', 'wRR'];
+      wheelEls.forEach((id, i) => {
+        const el = document.getElementById(id);
+        const val = rpm[i];
+        el.textContent = val.toFixed(0);
+        el.className = 'wheel-rpm ' + (val > 0.5 ? 'positive' : val < -0.5 ? 'negative' : 'zero');
+      });
+    }
+
+    // ---------- 主循环 ----------
+    function mainLoop() {
+      // 仿真步进
+      sim.step();
+
+      // 相机跟随
+      renderer.followRobot(sim.robot);
+
+      // 渲染
+      renderer.render(sim);
+
+      // UI更新
+      updateUI();
+
+      // FPS
+      frameCount++;
+      const now = performance.now();
+      if (now - lastFpsTime >= 1000) {
+        currentFps = frameCount;
+        frameCount = 0;
+        lastFpsTime = now;
+      }
+
+      requestAnimationFrame(mainLoop);
+    }
+
+    // 启动
+    requestAnimationFrame(mainLoop);
+  </script>
+</body>
+</html>
